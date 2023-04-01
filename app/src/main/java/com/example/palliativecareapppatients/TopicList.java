@@ -1,12 +1,28 @@
 package com.example.palliativecareapppatients;
 
+import static android.content.ContentValues.TAG;
+
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.os.Bundle;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -28,37 +44,118 @@ public class TopicList extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment TopicList.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static TopicList newInstance(String param1, String param2) {
-        TopicList fragment = new TopicList();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+
+
+        private RecyclerView mTopicRecyclerView;
+        private TopicAdapter mAdapter;
+
+        private TopicManager mTopicManager;
+
+
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+
+            mTopicManager = new TopicManager(PatientInfo.getInstance().getId());
         }
-    }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_topic_list, container, false);
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.fragment_topic_list, container, false);
+
+            mTopicRecyclerView = view.findViewById(R.id.topic_list);
+            mTopicRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+            updateUI();
+
+            return view;
+        }
+
+        private void updateUI() {
+            mTopicManager.getTopicByName(new TopicManager.TopicListCallback() {
+                @Override
+                public void onTopicListReceived(List<Topic> topics) {
+                    if (mAdapter == null) {
+                        mAdapter = new TopicAdapter(topics);
+                        mTopicRecyclerView.setAdapter(mAdapter);
+                    } else {
+                        mAdapter.setTopics(topics);
+                        mAdapter.notifyDataSetChanged();
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e(TAG, "Error getting topics", e);
+                }
+            });
+        }
+
+        private class TopicHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+            private Topic mTopic;
+
+            private TextView mTitleTextView;
+            private TextView mDescriptionTextView;
+            private Button mFollowButton;
+
+            public TopicHolder(LayoutInflater inflater, ViewGroup parent) {
+                super(inflater.inflate(R.layout.list_item_topic, parent, false));
+                itemView.setOnClickListener(this);
+
+                mTitleTextView = itemView.findViewById(R.id.topic_title);
+                mDescriptionTextView = itemView.findViewById(R.id.topic_description);
+                mFollowButton = itemView.findViewById(R.id.follow_button);
+            }
+
+            public void bind(Topic topic) {
+                mTopic = topic;
+                mTitleTextView.setText(mTopic.getTitle());
+                mDescriptionTextView.setText(mTopic.getDescription());
+
+                mTopicManager.isFollowingTopic(mTopic.getId(), new TopicManager.TopicCallback() {
+                    @Override
+                    public void onResult(boolean isFollowing) {
+
+                    }
+
+                    @Override
+                    public void onTopicReceived(Topic topic) {
+                        if (topic != null) {
+                            mFollowButton.setText("Un Follow");
+                        } else {
+                            mFollowButton.setText("Follow");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG, "Error checking if following topic", e);
+                    }
+                });
+
+                mFollowButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mFollowButton.getText().equals("Follow")) {
+                            mTopicManager.followTopic(mTopic);
+                            mFollowButton.setText("UN follow");
+                        } else {
+                            mTopicManager.unfollowTopic(mTopic.getId());
+                            mFollowButton.setText("Follow");
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onClick(View view) {
+                // Handle click on the topic
+            }
+        }
+
+
     }
-}

@@ -5,6 +5,7 @@ public class Topic {
     private String id;
     private String title;
     private String description;
+    boolean isFollowed ;
 
     public Topic() {
         // Required empty public constructor
@@ -14,6 +15,8 @@ public class Topic {
         this.id = id;
         this.title = title;
         this.description = description;
+        this.isFollowed = isFollowed;
+
     }
 
     public String getId() {
@@ -38,6 +41,13 @@ public class Topic {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+    public boolean isFollowed() {
+        return isFollowed;
+    }
+
+    public void setFollowed(boolean followed) {
+        isFollowed = followed;
     }
 }
 
