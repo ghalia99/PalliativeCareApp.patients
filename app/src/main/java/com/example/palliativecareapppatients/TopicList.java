@@ -21,12 +21,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link TopicList#newInstance} factory method to
+ * Use the  factory method to
  * create an instance of this fragment.
  */
 public class TopicList extends Fragment {
@@ -57,8 +60,15 @@ public class TopicList extends Fragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+            FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
-            mTopicManager = new TopicManager(PatientInfo.getInstance().getId());
+            if (firebaseUser != null) {
+                String patientId = firebaseUser.getUid();
+                mTopicManager = new TopicManager(patientId);
+            } else {
+                Log.e(TAG, "FirebaseUser is null");
+            }
         }
 
         @Override
@@ -75,11 +85,16 @@ public class TopicList extends Fragment {
         }
 
         private void updateUI() {
-            mTopicManager.getTopicByName(new TopicManager.TopicListCallback() {
+            mTopicManager.getTopics(new TopicManager.TopicListCallback() {
+                @Override
+                public void onCallback(List<Topic> topics) {
+
+                }
+
                 @Override
                 public void onTopicListReceived(List<Topic> topics) {
                     if (mAdapter == null) {
-                        mAdapter = new TopicAdapter(topics);
+                        mAdapter = new TopicAdapter(topics, getActivity(),mTopicManager);
                         mTopicRecyclerView.setAdapter(mAdapter);
                     } else {
                         mAdapter.setTopics(topics);
@@ -117,6 +132,11 @@ public class TopicList extends Fragment {
                 mDescriptionTextView.setText(mTopic.getDescription());
 
                 mTopicManager.isFollowingTopic(mTopic.getId(), new TopicManager.TopicCallback() {
+                    @Override
+                    public void onCallback(Topic topic) {
+
+                    }
+
                     @Override
                     public void onResult(boolean isFollowing) {
 
