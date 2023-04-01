@@ -6,17 +6,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include layout="@+layout/toolbar" android:id="@+id/toolbar" app:title="care" app:menu="@menu/menu_main"/>
-
 
     <FrameLayout
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginBottom="672dp"
+
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintVertical_weight="1"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+        tools:layout_editor_absoluteX="0dp" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
@@ -25,31 +25,12 @@
         android:background="@color/white"
         app:itemIconTint="@color/bottom_nav_color_selector"
         app:itemTextColor="@color/bottom_nav_color_selector"
-        app:menu="@menu/bottom_navigation_menu"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <ImageView
-        android:id="@+id/search_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_search"
-        android:contentDescription="Search icon"
-        app:layout_constraintTop_toTopOf="@id/toolbar"
-        app:layout_constraintEnd_toStartOf="@id/chat_icon"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="8dp"/>
-
-    <ImageView
-        android:id="@+id/chat_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_chat"
-        android:contentDescription="Chat icon"
-        app:layout_constraintTop_toTopOf="@id/toolbar"
-        app:layout_constraintEnd_toEndOf="@id/toolbar"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="8dp"/>
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        app:menu="@menu/bottom_navigation_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,84 +1,74 @@
 package com.example.palliativecareapppatients;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.ImageView;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
-import com.google.android.material.appbar.MaterialToolbar;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.example.palliativecareapppatients.ChatActivity;
+import com.example.palliativecareapppatients.Profile;
+import com.example.palliativecareapppatients.R;
+import com.example.palliativecareapppatients.SearchActivity;
+import com.example.palliativecareapppatients.Setting;
+import com.example.palliativecareapppatients.TopicList;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
 
 public class MainActivity extends AppCompatActivity {
 
-    private MaterialToolbar toolbar;
-    private ImageView searchIcon, chatIcon;
     private BottomNavigationView bottomNavigationView;
-    private Fragment currentFragment;
-
-    private SharedPreferences sharedPreferences;
-
-    private static final String SHARED_PREFS = "myPrefs";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-    /*    toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        searchIcon = findViewById(R.id.search_icon);
-        chatIcon = findViewById(R.id.chat_icon);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, new TopicList()).commit();
-        currentFragment = new TopicList();
+        // Set the initial fragment
+        TopicList topicListFragment = new TopicList();
+        setFragment(topicListFragment);
 
-        bottomNavigationView.setOnNavigationItemSelectedListener(navListener);
+        // Set the listeners for the bottom navigation bar
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                Fragment fragment;
+                switch (item.getItemId()) {
+                    case R.id.navigation_topic:
+                        fragment = new TopicList();
+                        setFragment(fragment);
+                        return true;
+                    case R.id.navigation_profile:
+                        fragment = new Profile();
+                        setFragment(fragment);
+                        return true;
+                    case R.id.navigation_settings:
+                        fragment = new Setting();
+                        setFragment(fragment);
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        });
 
-        sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
 
-        FirebaseApp.initializeApp(this, new FirebaseOptions.Builder()
-                .setApplicationId("1:965021679865:android:ac3cf346cac911d8eaa228")
-                .setApiKey("AIzaSyDulUxgYET4CY8LT8bxsVST9YAMVHWvYEQ")
-                .setDatabaseUrl("https://palliativecareapp-9e927-default-rtdb.firebaseio.com")
-                .build());
+
     }
 
-    private BottomNavigationView.OnNavigationItemSelectedListener navListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            Fragment selectedFragment = null;
-
-            switch (item.getItemId()) {
-                case R.id.navigation_topic:
-                    selectedFragment = new TopicList();
-                    break;
-                case R.id.navigation_profile:
-                    selectedFragment = new Profile();
-                    break;
-                case R.id.navigation_settings:
-                    selectedFragment = new Setting();
-                    break;
-            }
-
-            if (selectedFragment != null) {
-                getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, selectedFragment).commit();
-                currentFragment = selectedFragment;
-            }
-
-            return true;
-        }
-    };
+    private void setFragment(Fragment fragment) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.content_frame, fragment);
+        fragmentTransaction.commit();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -91,13 +81,13 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_search) {
-            startActivity(new Intent(this, SearchActivity.class));
-            return true;
-        } else if (id == R.id.action_chat) {
-            startActivity(new Intent(this, ChatActivity.class));
+startActivity(new Intent(MainActivity.this,SearchActivity.class));
+return true;
+        }
+        if (id == R.id.action_chat) {
+            startActivity(new Intent(MainActivity.this,ChatActivity.class));
             return true;
         }
-
-        return super.onOptionsItemSelected(item);*/
+        return super.onOptionsItemSelected(item);
     }
 }
