@@ -32,7 +32,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        toolbar = findViewById(R.id.toolbar);
+
+    /*    toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         searchIcon = findViewById(R.id.search_icon);
@@ -97,6 +98,6 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
-        return super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(item);*/
     }
 }
