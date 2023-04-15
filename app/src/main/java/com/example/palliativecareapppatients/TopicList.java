@@ -47,13 +47,9 @@ public class TopicList extends Fragment {
         // Required empty public constructor
     }
 
-
-
-
         private RecyclerView mTopicRecyclerView;
         private TopicAdapter mAdapter;
 
-        private TopicManager mTopicManager;
 
 
 
@@ -63,12 +59,6 @@ public class TopicList extends Fragment {
             FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
             FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
-            if (firebaseUser != null) {
-                String patientId = firebaseUser.getUid();
-                mTopicManager = new TopicManager(patientId);
-            } else {
-                Log.e(TAG, "FirebaseUser is null");
-            }
         }
 
         @Override
@@ -76,106 +66,12 @@ public class TopicList extends Fragment {
                                  Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.fragment_topic_list, container, false);
 
-            mTopicRecyclerView = view.findViewById(R.id.topic_list);
-            mTopicRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-            updateUI();
 
             return view;
         }
 
-        private void updateUI() {
-            mTopicManager.getTopics(new TopicManager.TopicListCallback() {
-                @Override
-                public void onCallback(List<Topic> topics) {
 
-                }
-
-                @Override
-                public void onTopicListReceived(List<Topic> topics) {
-                    if (mAdapter == null) {
-                        mAdapter = new TopicAdapter(topics, getActivity(),mTopicManager);
-                        mTopicRecyclerView.setAdapter(mAdapter);
-                    } else {
-                        mAdapter.setTopics(topics);
-                        mAdapter.notifyDataSetChanged();
-                    }
-                }
-
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.e(TAG, "Error getting topics", e);
-                }
-            });
-        }
-
-        private class TopicHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-            private Topic mTopic;
-
-            private TextView mTitleTextView;
-            private TextView mDescriptionTextView;
-            private Button mFollowButton;
-
-            public TopicHolder(LayoutInflater inflater, ViewGroup parent) {
-                super(inflater.inflate(R.layout.list_item_topic, parent, false));
-                itemView.setOnClickListener(this);
-
-                mTitleTextView = itemView.findViewById(R.id.topic_title);
-                mDescriptionTextView = itemView.findViewById(R.id.topic_description);
-                mFollowButton = itemView.findViewById(R.id.follow_button);
-            }
-
-            public void bind(Topic topic) {
-                mTopic = topic;
-                mTitleTextView.setText(mTopic.getTitle());
-                mDescriptionTextView.setText(mTopic.getDescription());
-
-                mTopicManager.isFollowingTopic(mTopic.getId(), new TopicManager.TopicCallback() {
-                    @Override
-                    public void onCallback(Topic topic) {
-
-                    }
-
-                    @Override
-                    public void onResult(boolean isFollowing) {
-
-                    }
-
-                    @Override
-                    public void onTopicReceived(Topic topic) {
-                        if (topic != null) {
-                            mFollowButton.setText("Un Follow");
-                        } else {
-                            mFollowButton.setText("Follow");
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG, "Error checking if following topic", e);
-                    }
-                });
-
-                mFollowButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (mFollowButton.getText().equals("Follow")) {
-                            mTopicManager.followTopic(mTopic);
-                            mFollowButton.setText("UN follow");
-                        } else {
-                            mTopicManager.unfollowTopic(mTopic.getId());
-                            mFollowButton.setText("Follow");
-                        }
-                    }
-                });
-            }
-
-            @Override
-            public void onClick(View view) {
-                // Handle click on the topic
-            }
-        }
 
 
     }

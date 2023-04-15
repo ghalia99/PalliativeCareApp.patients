@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -28,14 +29,17 @@ import java.util.HashMap;
 public class RegistrationActivity extends AppCompatActivity {
     private EditText firstNameEt, middleNameEt, familyNameEt, birthDateEt, addressEt, emailEt, mobileNoEt, passwordEt, confirmPasswordEt;
     private Button registerBtn;
+    private CheckBox patientCheckBox, doctorCheckBox;
+
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
     private Button loginBtn ;
+    private String userType ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SharedPreferences prefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
+ /*       SharedPreferences prefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
         boolean loggedIn = prefs.getBoolean("loggedIn", false);
         if (loggedIn) {
             // if the user is already logged in, start the home activity
@@ -46,7 +50,7 @@ public class RegistrationActivity extends AppCompatActivity {
             Intent intent = new Intent(RegistrationActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
-
+*/
 
         setContentView(R.layout.activity_registration);
         firstNameEt = findViewById(R.id.first_name_et);
@@ -61,6 +65,8 @@ public class RegistrationActivity extends AppCompatActivity {
         registerBtn = findViewById(R.id.register_btn);
         loginBtn = findViewById(R.id.sign_in_btn);
 
+        patientCheckBox = findViewById(R.id.patient_checkbox);
+        doctorCheckBox = findViewById(R.id.doctor_checkbox);
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -76,7 +82,6 @@ public class RegistrationActivity extends AppCompatActivity {
                 final String mobileNo = mobileNoEt.getText().toString().trim();
                 final String password = passwordEt.getText().toString().trim();
                 String confirmPassword = confirmPasswordEt.getText().toString().trim();
-
                 if (TextUtils.isEmpty(firstName) || TextUtils.isEmpty(middleName) || TextUtils.isEmpty(familyName)
                         || TextUtils.isEmpty(birthDate) || TextUtils.isEmpty(address) || TextUtils.isEmpty(email)
                         || TextUtils.isEmpty(mobileNo) || TextUtils.isEmpty(password) || TextUtils.isEmpty(confirmPassword)) {
@@ -86,6 +91,19 @@ public class RegistrationActivity extends AppCompatActivity {
 
                 if (!password.equals(confirmPassword)) {
                     Toast.makeText(getApplicationContext(), "Passwords do not match", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                if (patientCheckBox.isChecked() && doctorCheckBox.isChecked()) {
+                    Toast.makeText(getApplicationContext(), "Please select only one user type", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                if (patientCheckBox.isChecked()) {
+                    userType = "patient";
+                } else if (doctorCheckBox.isChecked()) {
+                    userType = "doctor";
+                } else {
+                    Toast.makeText(getApplicationContext(), "Please select user type", Toast.LENGTH_LONG).show();
                     return;
                 }
 
@@ -104,6 +122,9 @@ public class RegistrationActivity extends AppCompatActivity {
                                     userMap.put("address", address);
                                     userMap.put("email", email);
                                     userMap.put("mobileNo", mobileNo);
+                                    userMap.put("Type", userType);
+
+
 
                                     mDatabase.child("users").child(uid).setValue(userMap)
                                             .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -111,7 +132,6 @@ public class RegistrationActivity extends AppCompatActivity {
                                                 public void onComplete(@NonNull Task<Void> task) {
                                                     if (task.isSuccessful()) {
                                                         Toast.makeText(getApplicationContext(), "Registration successful", Toast.LENGTH_LONG).show();
-                                                        finish();
                                                         Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
                                                         startActivity(intent);
                                                         finish();
@@ -147,5 +167,4 @@ public class RegistrationActivity extends AppCompatActivity {
         });
 
     }
-}
 }

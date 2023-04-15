@@ -1,3 +1,5 @@
+package com.example.palliativecareapppatients;
+
 public class User {
 
     private String firstName;
@@ -6,6 +8,7 @@ public class User {
     private String address;
     private String mobileNo;
     private String type;
+    private String id;
 
     public User() {
         // Empty constructor needed for Firebase
@@ -66,5 +69,12 @@ public class User {
 
     public void setType(String type) {
         this.type = type;
+    }
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }
