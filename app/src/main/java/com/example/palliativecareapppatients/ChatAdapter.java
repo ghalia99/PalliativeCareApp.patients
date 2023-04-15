@@ -24,46 +24,52 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class ChatAdapter extends FirebaseRecyclerAdapter<ChatMessage, ChatAdapter.ViewHolder> {
+public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
 
-    private FirebaseAuth firebaseAuth;
+    private ArrayList<ChatMessage> mChatMessages;
+    private String mCurrentUserId;
+    private String mDoctorId;
 
-    public ChatAdapter(@NonNull FirebaseRecyclerOptions<ChatMessage> options) {
-        super(options);
-        firebaseAuth = FirebaseAuth.getInstance();
-    }
-
-    @Override
-    protected void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull ChatMessage model) {
-        String message = model.getMessage();
-        String sender = model.getSenderId();
-        String receiver = model.getReceiverId();
-
-        holder.messageTextView.setText(message);
-
-        if (sender.equals(firebaseAuth.getCurrentUser().getDisplayName())) {
-            holder.messageTextView.setBackgroundResource(R.drawable.sent_message_background);
-            holder.messageTextView.setGravity(Gravity.END);
-        } else {
-            holder.messageTextView.setBackgroundResource(R.drawable.received_message_background);
-            holder.messageTextView.setGravity(Gravity.START);
-        }
+    public ChatAdapter(ArrayList<ChatMessage> chatMessages, String currentUserId, String doctorId) {
+        mChatMessages = chatMessages;
+        mCurrentUserId = currentUserId;
+        mDoctorId = doctorId;
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat_message, parent, false);
-        return new ViewHolder(view);
+        return new ChatViewHolder(view);
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView messageTextView;
+    @Override
+    public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
+        ChatMessage message = mChatMessages.get(position);
 
-        public ViewHolder(View itemView) {
+        holder.mMessageTextView.setText(message.getMessage());
+
+        if (message.getSenderId().equals(mCurrentUserId)) {
+            holder.mMessageTextView.setBackgroundResource(R.drawable.sent_message_background);
+            holder.mMessageTextView.setGravity(Gravity.END);
+        } else if (message.getSenderId().equals(mDoctorId)) {
+            holder.mMessageTextView.setBackgroundResource(R.drawable.received_message_background);
+            holder.mMessageTextView.setGravity(Gravity.START);
+        }
+    }
+
+    @Override
+    public int getItemCount() {
+        return mChatMessages.size();
+    }
+
+    public static class ChatViewHolder extends RecyclerView.ViewHolder {
+
+        public TextView mMessageTextView;
+
+        public ChatViewHolder(View itemView) {
             super(itemView);
-            messageTextView = itemView.findViewById(R.id.message_text_view);
+            mMessageTextView = itemView.findViewById(R.id.message_text_view);
         }
     }
 }
-

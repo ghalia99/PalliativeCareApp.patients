@@ -10,6 +10,11 @@ public class ChatMessage {
     public ChatMessage() {
 
     }
+    public ChatMessage(String message, String senderId, String receiverId) {
+        this.message = message;
+        this.senderId = senderId;
+        this.receiverId = receiverId;
+    }
 
     public ChatMessage(String message, String senderId, String receiverId, long timestamp) {
         this.message = message;

@@ -1,100 +1,138 @@
 package com.example.palliativecareapppatients;
 
+import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Message;
-import android.text.TextUtils;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toolbar;
-
-import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 
 public class ChatActivity2 extends AppCompatActivity {
 
-    private RecyclerView recyclerView;
-    private EditText editText;
-    private Button sendButton;
-    private DatabaseReference databaseReference;
-    private FirebaseAuth firebaseAuth;
-    private String senderUserName, receiverUserName;
+    private String mDoctorId;
+    private String mDoctorName;
+    private DatabaseReference mDatabaseReference;
+    private ChildEventListener mChildEventListener;
+    private FirebaseAuth mAuth;
+    private FirebaseUser mFirebaseUser;
+    private RecyclerView mRecyclerView;
+    private ChatAdapter mAdapter;
+    private ArrayList<ChatMessage> mChatMessages;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat2);
 
+        mDoctorId = getIntent().getStringExtra("doctorId");
+        mDoctorName = getIntent().getStringExtra("doctorName");
 
+        setTitle(mDoctorName);
 
-        recyclerView = findViewById(R.id.recyclerView);
-        editText = findViewById(R.id.edit_text_message);
-        sendButton = findViewById(R.id.button_send);
-
-        Intent intent = getIntent();
-        receiverUserName = intent.getStringExtra("doctorName");
-
-        firebaseAuth = FirebaseAuth.getInstance();
-        databaseReference = FirebaseDatabase.getInstance().getReference();
-
-        senderUserName = firebaseAuth.getCurrentUser().getDisplayName();
-
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setStackFromEnd(true);
-        recyclerView.setLayoutManager(linearLayoutManager);
-
-        sendButton.setOnClickListener(new View.OnClickListener() {
+        // Initialize Firebase
+        // Initialize Firebase
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        mAuth = FirebaseAuth.getInstance();
+        mFirebaseUser = mAuth.getCurrentUser();
+        if (mFirebaseUser == null) {
+            // Not signed in, launch the Sign In activity
+            finish();
+            return;
+        }
+if (firebaseDatabase.getReference().child("chat").child(mFirebaseUser.getUid()).child(mDoctorId) != null){
+        DatabaseReference chatRef = firebaseDatabase.getReference().child("chat").child(mFirebaseUser.getUid()).child(mDoctorId);
+        chatRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onClick(View v) {
-                String message = editText.getText().toString();
-                if (!message.isEmpty()) {
-                    sendMessage(message);
-                    editText.setText("");
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    mDatabaseReference = chatRef;
+
+                    // Initialize RecyclerView
+                    mRecyclerView = findViewById(R.id.recyclerView);
+                    LinearLayoutManager layoutManager = new LinearLayoutManager(ChatActivity2.this);
+                    layoutManager.setStackFromEnd(true);
+                    mRecyclerView.setLayoutManager(layoutManager);
+
+                    // Initialize chat messages list
+                    mChatMessages = new ArrayList<>();
+
+                    // Initialize adapter
+                    mAdapter = new ChatAdapter(mChatMessages, mFirebaseUser.getUid(), mDoctorId);
+                    mRecyclerView.setAdapter(mAdapter);
+
+                    // Initialize FAB
+                    FloatingActionButton fab = findViewById(R.id.fab);
+                    fab.setOnClickListener(view -> {
+                        // Create a new chat message and push it to Firebase
+                        String messageText = "Hello, how can I help you?";
+                        ChatMessage chatMessage = new ChatMessage(messageText, mFirebaseUser.getUid(), mDoctorId);
+                        mDatabaseReference.push().setValue(chatMessage).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                // Do nothing
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                // Do nothing
+                            }
+                        });
+                    });
+
+                    // Add child event listener to retrieve chat messages from Firebase
+                    mChildEventListener = new ChildEventListener() {
+                        @Override
+                        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                            ChatMessage chatMessage = dataSnapshot.getValue(ChatMessage.class);
+                            mChatMessages.add(chatMessage);
+                            mAdapter.notifyItemInserted(mChatMessages.size() - 1);
+                            mRecyclerView.scrollToPosition(mChatMessages.size() - 1);
+                        }
+
+                        @Override
+                        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                            // Do nothing
+                        }
+
+                        @Override
+                        public void onChildRemoved(DataSnapshot dataSnapshot) {
+                            // Do nothing
+                        }
+
+                        @Override
+                        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                            // Do nothing
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            // Do nothing
+                        }
+                    };
+                    chatRef.addChildEventListener(mChildEventListener);
                 }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Do nothing
             }
         });
 
-        displayMessages();
     }
-
-    private void sendMessage(String message) {
-        HashMap<String, Object> hashMap = new HashMap<>();
-        hashMap.put("sender", senderUserName);
-        hashMap.put("receiver", receiverUserName);
-        hashMap.put("message", message);
-
-        databaseReference.child("Chats").push().setValue(hashMap);
-    }
-
-    private void displayMessages() {
-        Query query = databaseReference.child("Chats")
-                .orderByChild("sender_receiver")
-                .equalTo(senderUserName + "_" + receiverUserName);
-
-        FirebaseRecyclerOptions<ChatMessage> options = new FirebaseRecyclerOptions.Builder<ChatMessage>()
-                .setQuery(query, ChatMessage.class)
-                .build();
-
-        ChatAdapter chatAdapter = new ChatAdapter(options);
-        recyclerView.setAdapter(chatAdapter);
-        chatAdapter.startListening();
     }
 }
