@@ -122,7 +122,7 @@ public class RegistrationActivity extends AppCompatActivity {
                                     userMap.put("address", address);
                                     userMap.put("email", email);
                                     userMap.put("mobileNo", mobileNo);
-                                    userMap.put("Type", userType);
+                                    userMap.put("type", userType);
 
 
 

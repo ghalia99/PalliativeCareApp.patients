@@ -13,22 +13,30 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PalliativeCareApppatients"
         tools:targetApi="31">
+
         <activity
-            android:name=".ChatActivity2"
-            android:exported="false" />
-        <activity
-            android:name=".RegistrationActivity"
+            android:name=".SplashScreenActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:exported="true"
-            android:label="Registration"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme"
-            android:windowSoftInputMode="adjustResize">
+
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".ChatActivity2"
+            android:exported="false" />
+        <activity
+            android:name=".RegistrationActivity"
+            android:exported="false"
+            android:label="Registration"
+            android:screenOrientation="portrait"
+
+            android:windowSoftInputMode="adjustResize">
+
         </activity>
         <activity
             android:name=".MainActivity2"
@@ -53,7 +61,7 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="false"></activity>
+            android:exported="false" />
     </application>
 
 </manifest>
