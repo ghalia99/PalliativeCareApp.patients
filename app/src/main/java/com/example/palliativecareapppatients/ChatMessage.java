@@ -1,35 +1,35 @@
 package com.example.palliativecareapppatients;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ChatMessage {
-    private String message;
+
+    private String messageText;
     private String senderId;
-    private String receiverId;
     private long timestamp;
 
-
     public ChatMessage() {
-
-    }
-    public ChatMessage(String message, String senderId, String receiverId) {
-        this.message = message;
-        this.senderId = senderId;
-        this.receiverId = receiverId;
+        // Default constructor required for Firebase
     }
 
-    public ChatMessage(String message, String senderId, String receiverId, long timestamp) {
-        this.message = message;
+    public ChatMessage(String messageText, String senderId, long timestamp) {
+
+        this.messageText = messageText;
         this.senderId = senderId;
-        this.receiverId = receiverId;
         this.timestamp = timestamp;
-
     }
 
-    public String getMessage() {
-        return message;
+
+
+
+
+    public String getMessageText() {
+        return messageText;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setMessageText(String messageText) {
+        this.messageText = messageText;
     }
 
     public String getSenderId() {
@@ -40,14 +40,6 @@ public class ChatMessage {
         this.senderId = senderId;
     }
 
-    public String getReceiverId() {
-        return receiverId;
-    }
-
-    public void setReceiverId(String receiverId) {
-        this.receiverId = receiverId;
-    }
-
     public long getTimestamp() {
         return timestamp;
     }
@@ -56,4 +48,13 @@ public class ChatMessage {
         this.timestamp = timestamp;
     }
 
+    // Convert ChatMessage object to a Map for Firebase database
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+
+        result.put("messageText", messageText);
+        result.put("senderId", senderId);
+        result.put("timestamp", timestamp);
+        return result;
+    }
 }
