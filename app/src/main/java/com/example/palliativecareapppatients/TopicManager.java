@@ -87,11 +87,11 @@ public class TopicManager {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         Topic topic = documentSnapshot.toObject(Topic.class);
-                        if (topic != null && topic.isFollowed()) {
+                     /*   if (topic != null && topic.isFollowed()) {
                             callback.onCallback(topic);
                         } else {
                             callback.onCallback(null);
-                        }
+                        }*/
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
