@@ -62,7 +62,7 @@ public class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.TopicViewHol
 
             mTitleTextView = itemView.findViewById(R.id.topic_title);
             mDescriptionTextView = itemView.findViewById(R.id.topic_description);
-            mFollowButton = itemView.findViewById(R.id.follow_button);
+     /*       mFollowButton = itemView.findViewById(R.id.follow_button);
 
             mFollowButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -79,7 +79,7 @@ public class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.TopicViewHol
                         }
                     }
                 }
-            });
+            });*/
         }
 
         public void bind(Topic topic) {
@@ -88,9 +88,9 @@ public class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.TopicViewHol
             mDescriptionTextView.setText(mTopic.getDescription());
 
             if (mTopic.isFollowed()) {
-                mFollowButton.setText("Un follow");
+           //     mFollowButton.setText("Un follow");
             } else {
-                mFollowButton.setText("Follow");
+           //     mFollowButton.setText("Follow");
             }
         }
 
