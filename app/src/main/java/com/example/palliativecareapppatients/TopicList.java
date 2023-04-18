@@ -24,8 +24,11 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +46,6 @@ import java.util.List;
 public class TopicList extends Fragment {
 
     private RecyclerView mRecyclerView;
-    private TopicsAdapter mTopicsAdapter;
     private DatabaseReference mDatabaseRef;
 
     @Override
@@ -52,7 +54,7 @@ public class TopicList extends Fragment {
         View view = inflater.inflate(R.layout.fragment_topic_list, container, false);
 
         // Initialize Firebase Database reference
-        mDatabaseRef = FirebaseDatabase.getInstance().getReference().child("topics");
+    /*    mDatabaseRef = FirebaseDatabase.getInstance().getReference().child("topics");
 
         // Initialize RecyclerView
         mRecyclerView = view.findViewById(R.id.topic_list);
@@ -78,7 +80,40 @@ public class TopicList extends Fragment {
         });
 
         return view;
+    }*/
+        mRecyclerView = view.findViewById(R.id.topic_list);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        TopicListAdapter mAdapter = new TopicListAdapter();
+        mRecyclerView.setAdapter(mAdapter);
+
+        // Initialize Firebase Realtime Database reference
+        mDatabaseRef = FirebaseDatabase.getInstance().getReference("topics");
+
+        // Add ValueEventListener to fetch data from Firebase
+        mDatabaseRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                // Clear existing data
+
+                mAdapter.clearData();
+                // Iterate through the data from Firebase
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    Topic topic = dataSnapshot.getValue(Topic.class);
+                    mAdapter.addTopic(topic);
+                }
+                // Notify adapter that data has changed
+                mAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "onCancelled: " + error.getMessage());
+            }
+        });
+
+        return view;
     }
+
 
     // Define the ViewHolder for the TopicsAdapter
     private static class TopicViewHolder extends RecyclerView.ViewHolder {
@@ -95,53 +130,57 @@ public class TopicList extends Fragment {
     }
 
     // Define the TopicsAdapter
-    private static class TopicsAdapter extends RecyclerView.Adapter<TopicViewHolder> {
-        private List<String> mTopicsList = new ArrayList<>();
-        private OnItemClickListener mListener;
 
-        // Interface for item click listener
-        public interface OnItemClickListener {
-            void onItemClick(String topicId);
+    private class TopicListAdapter extends RecyclerView.Adapter<TopicListAdapter.TopicViewHolder> {
+
+        private List<Topic> mTopics;
+
+        public TopicListAdapter() {
+            mTopics = new ArrayList<>();
         }
 
-        // Method to set the item click listener
-        public void setOnItemClickListener(OnItemClickListener listener) {
-            mListener = listener;
+        public void addTopic(Topic topic) {
+            mTopics.add(topic);
+        }
+
+        public void clearData() {
+            mTopics.clear();
         }
 
         @NonNull
         @Override
         public TopicViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_topic, parent, false);
+            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+            View view = inflater.inflate(R.layout.list_item_topic, parent, false);
             return new TopicViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(@NonNull TopicViewHolder holder, int position) {
-            final String topic = mTopicsList.get(position);
+            Topic topic = mTopics.get(position);
             holder.bind(topic);
-
-            // Set click listener for item view
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mListener != null) {
-                        mListener.onItemClick(topic);
-                    }
-                }
-            });
         }
 
         @Override
         public int getItemCount() {
-            return mTopicsList.size();
+            return mTopics.size();
         }
 
-        // Method to set the topics list and notify data set changed
-        public void setTopicsList(List<String> topicsList) {
-            mTopicsList = topicsList;
-            notifyDataSetChanged();
+        public  class TopicViewHolder extends RecyclerView.ViewHolder {
+
+            private TextView mTitleTextView;
+
+            public TopicViewHolder(@NonNull View itemView) {
+                super(itemView);
+                mTitleTextView = itemView.findViewById(R.id.topic_title);
+            }
+
+            public void bind(Topic topic) {
+                mTitleTextView.setText(topic.getTitle());
+            }
         }
     }
-}
+    }
+
+
 
