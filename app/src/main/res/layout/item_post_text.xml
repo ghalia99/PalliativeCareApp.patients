@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <!-- item_post_text.xml -->
+
+    <!-- Assuming the root layout is a LinearLayout -->
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- TextView to display the text of the post -->
+        <TextView
+            android:id="@+id/textViewPost"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textColor="#000000"
+            android:textStyle="bold"
+            android:maxLines="3"
+            android:ellipsize="end" />
+
+        <!-- Other UI components for displaying post information such as author, date, etc. can be added here -->
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

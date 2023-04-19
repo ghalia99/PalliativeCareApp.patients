@@ -19,9 +19,11 @@ import java.util.List;
 public class TopicListAdapter extends RecyclerView.Adapter<TopicListAdapter.TopicViewHolder> {
 
     private List<Topic> mTopics;
+    private OnTopicClickListener mListener;
 
-    public TopicListAdapter(List<Topic> topics) {
+    public TopicListAdapter(List<Topic> topics, OnTopicClickListener listener) {
         mTopics = topics;
+        mListener = listener;
     }
 
     @NonNull
@@ -30,8 +32,6 @@ public class TopicListAdapter extends RecyclerView.Adapter<TopicListAdapter.Topi
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View view = inflater.inflate(R.layout.list_item_topic, parent, false);
         return new TopicViewHolder(view);
-
-
     }
 
     @Override
@@ -76,6 +76,14 @@ public class TopicListAdapter extends RecyclerView.Adapter<TopicListAdapter.Topi
             super(itemView);
             mTitleTextView = itemView.findViewById(R.id.topic_title);
             mDescriptionTextView = itemView.findViewById(R.id.topic_description);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (mListener != null) {
+                        mListener.onTopicClick(getAdapterPosition());
+                    }
+                }
+            });
         }
 
         public void bind(Topic topic) {
@@ -83,6 +91,7 @@ public class TopicListAdapter extends RecyclerView.Adapter<TopicListAdapter.Topi
             mDescriptionTextView.setText(topic.getDescription());
         }
     }
+
     private void saveFollowStatusToDatabase(String topicId, boolean isFollowed) {
         DatabaseReference topicsRef = FirebaseDatabase.getInstance().getReference().child("topics").child(topicId);
 
@@ -100,4 +109,10 @@ public class TopicListAdapter extends RecyclerView.Adapter<TopicListAdapter.Topi
                     }
                 });
     }
+
+    public interface OnTopicClickListener {
+        void onTopicClick(int position);
+
+    }
 }
+
