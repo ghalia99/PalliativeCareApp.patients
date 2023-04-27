@@ -1,10 +1,6 @@
 package com.example.palliativecareapppatients;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -131,10 +127,16 @@ public class RegistrationActivity extends AppCompatActivity {
                                                 @Override
                                                 public void onComplete(@NonNull Task<Void> task) {
                                                     if (task.isSuccessful()) {
+                                                        if(userType.equals("doctor")){
                                                         Toast.makeText(getApplicationContext(), "Registration successful", Toast.LENGTH_LONG).show();
-                                                        Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
+                                                        Intent intent = new Intent(RegistrationActivity.this, MainActivity2.class);
                                                         startActivity(intent);
-                                                        finish();
+                                                        finish();}
+                                                        if(userType.equals("patient")){
+                                                            Toast.makeText(getApplicationContext(), "Registration successful", Toast.LENGTH_LONG).show();
+                                                            Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
+                                                            startActivity(intent);
+                                                            finish();}
                                                         Log.d("Register", "Register button clicked");
 
                                                     } else {

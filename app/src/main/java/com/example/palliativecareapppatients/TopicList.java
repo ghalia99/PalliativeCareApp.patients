@@ -88,8 +88,7 @@ public class TopicList extends Fragment  {
                 for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
                     // Fetch data from childSnapshot and create a Topic object
 
-                    String id = childSnapshot.getKey();
-
+                        String id = childSnapshot.getKey();
                         String   title = childSnapshot.child("title").getValue(String.class);
                         String    description = childSnapshot.child("description").getValue(String.class);
                         boolean   is_followed = childSnapshot.child("is_followed").getValue(Boolean.class);

@@ -17,6 +17,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity {
     private EditText emailEt, passwordEt;
@@ -43,12 +48,12 @@ public class LoginActivity extends AppCompatActivity {
             setContentView(R.layout.activity_login);
 
 
-        emailEt = findViewById(R.id.email_et);
-        passwordEt = findViewById(R.id.password_et);
-        loginBtn = findViewById(R.id.login_btn);
-        registerBtn = findViewById(R.id.register_btn);
+            emailEt = findViewById(R.id.email_et);
+            passwordEt = findViewById(R.id.password_et);
+            loginBtn = findViewById(R.id.login_btn);
+            registerBtn = findViewById(R.id.register_btn);
 
-        mAuth = FirebaseAuth.getInstance();
+            mAuth = FirebaseAuth.getInstance();
 
             FirebaseUser currentUser = mAuth.getCurrentUser();
             if (currentUser != null) {
@@ -58,41 +63,75 @@ public class LoginActivity extends AppCompatActivity {
                 if (userType.equals("doctor")) {
                     Intent intent = new Intent(LoginActivity.this, MainActivity2.class);
                     startActivity(intent);
+                    finish();
                 } else if (userType.equals("patient")) {
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(intent);
+                    finish();
                 }
-                finish();
             }
-        loginBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String email = emailEt.getText().toString().trim();
-                String password = passwordEt.getText().toString().trim();
 
-                if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
-                    Toast.makeText(getApplicationContext(), "Please fill in all fields", Toast.LENGTH_LONG).show();
-                    return;
-                }
+    loginBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String email = emailEt.getText().toString().trim();
+                        String password = passwordEt.getText().toString().trim();
 
-                mAuth.signInWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(getApplicationContext(), "Login successful", Toast.LENGTH_LONG).show();
-                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                } else {
-                                    Toast.makeText(getApplicationContext(), "Login failed", Toast.LENGTH_LONG).show();
-                                }
-                            }
-                        });
-            }
-        });
+                        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
+                            Toast.makeText(getApplicationContext(), "Please fill in all fields", Toast.LENGTH_LONG).show();
+                            return;
+                        }
 
-        registerBtn.setOnClickListener(new View.OnClickListener() {
+                        mAuth.signInWithEmailAndPassword(email, password)
+                                .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<AuthResult> task) {
+                                        if (task.isSuccessful()) {
+                                            Toast.makeText(getApplicationContext(), "Login successful", Toast.LENGTH_LONG).show();
+                                            FirebaseUser currentUser = mAuth.getCurrentUser();
+                                            if (currentUser != null) {
+                                                String uid = currentUser.getUid();
+                                                DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users").child(uid);
+                                                userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                        if (dataSnapshot.exists()) {
+                                                            String userType = dataSnapshot.child("type").getValue(String.class);
+                                                            if (userType != null) {
+                                                                if (userType.equals("doctor")) {
+                                                                    Intent intent = new Intent(LoginActivity.this, MainActivity2.class);
+                                                                    startActivity(intent);
+                                                                } else if (userType.equals("patient")) {
+                                                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                                                    startActivity(intent);
+                                                                }
+                                                                finish();
+                                                            } else {
+                                                                Toast.makeText(getApplicationContext(), "Failed to get user type", Toast.LENGTH_LONG).show();
+                                                            }
+                                                        } else {
+                                                            Toast.makeText(getApplicationContext(), "Failed to get user data", Toast.LENGTH_LONG).show();
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                                                        Toast.makeText(getApplicationContext(), "Failed to get user data", Toast.LENGTH_LONG).show();
+                                                    }
+                                                });
+                                            }
+                                        } else {
+                                            Toast.makeText(getApplicationContext(), "Login failed", Toast.LENGTH_LONG).show();
+                                        }
+                                    }
+                                });
+                    }
+                });
+
+
+
+
+            registerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(LoginActivity.this, RegistrationActivity.class);
