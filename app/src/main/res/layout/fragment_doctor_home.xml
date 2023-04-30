@@ -47,7 +47,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end"
         android:layout_marginTop="8dp"
-        android:background="@drawable/post_button_background"
+        android:background="@drawable/button_background"
         android:paddingStart="24dp"
         android:paddingTop="8dp"
         android:paddingEnd="24dp"

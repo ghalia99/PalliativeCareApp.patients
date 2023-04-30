@@ -1,439 +1,418 @@
 package com.example.palliativecareapppatients;
-/*
+
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.StorageTask;
+import com.google.firebase.storage.UploadTask;
+import com.mikhaellopez.circularimageview.CircularImageView;
+import com.squareup.picasso.Picasso;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-
-public class ChatActivity2 extends AppCompatActivity {
-
-    private String mDoctorId;
-    private String mDoctorName;
-    private DatabaseReference mDatabaseReference;
-    private ChildEventListener mChildEventListener;
-    private FirebaseAuth mAuth;
-    private FirebaseUser mFirebaseUser;
-    private RecyclerView mRecyclerView;
-    private ChatAdapter mAdapter;
-    private ArrayList<ChatMessage> mChatMessages;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat2);
-
-        mDoctorId = getIntent().getStringExtra("doctorId");
-        mDoctorName = getIntent().getStringExtra("doctorName");
-
-        setTitle(mDoctorName);
-        try {
-        // Initialize Firebase
-        // Initialize Firebase
-        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        mAuth = FirebaseAuth.getInstance();
-        mFirebaseUser = mAuth.getCurrentUser();
-        if (mFirebaseUser == null) {
-            // Not signed in, launch the Sign In activity
-            finish();
-            return;
-        }
-
-
-
-                DatabaseReference chatRef = firebaseDatabase.getReference().child("chat").child(mFirebaseUser.getUid()).child(mDoctorId);
-                chatRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            mDatabaseReference = chatRef;
-
-                            // Initialize RecyclerView
-                            mRecyclerView = findViewById(R.id.recyclerView);
-                            LinearLayoutManager layoutManager = new LinearLayoutManager(ChatActivity2.this);
-                            layoutManager.setStackFromEnd(true);
-                            mRecyclerView.setLayoutManager(layoutManager);
-
-                            // Initialize chat messages list
-                            mChatMessages = new ArrayList<>();
-
-                            // Initialize adapter
-                            mAdapter = new ChatAdapter(mChatMessages, mFirebaseUser.getUid(), mDoctorId);
-                            mRecyclerView.setAdapter(mAdapter);
-
-                            try {
-                                // Initialize FAB
-                                FloatingActionButton fab = findViewById(R.id.fab);
-                                fab.setOnClickListener(view -> {
-                                    // Create a new chat message and push it to Firebase
-                                    String messageText = "Hello, how can I help you?";
-                                    ChatMessage chatMessage = new ChatMessage(messageText, mFirebaseUser.getUid(), mDoctorId);
-                                    mDatabaseReference.push().setValue(chatMessage).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            // Do nothing
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            // Do nothing
-                                        }
-                                    });
-                                });
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                Toast.makeText(ChatActivity2.this, "Error 1: Failed to initialize. Please try again later.", Toast.LENGTH_SHORT).show();
-                                // Handle exception here, e.g. log error, show error message to user, etc.
-                            }
-                            // Add child event listener to retrieve chat messages from Firebase
-                            mChildEventListener = new ChildEventListener() {
-                                @Override
-                                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                                    ChatMessage chatMessage = dataSnapshot.getValue(ChatMessage.class);
-                                    mChatMessages.add(chatMessage);
-                                    mAdapter.notifyItemInserted(mChatMessages.size() - 1);
-                                    mRecyclerView.scrollToPosition(mChatMessages.size() - 1);
-                                }
-
-                                @Override
-                                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                                    // Do nothing
-                                }
-
-                                @Override
-                                public void onChildRemoved(DataSnapshot dataSnapshot) {
-                                    // Do nothing
-                                }
-
-                                @Override
-                                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-                                    // Do nothing
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-                                    // Do nothing
-                                }
-                            };
-                            chatRef.addChildEventListener(mChildEventListener);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        // Do nothing
-                    }
-                });
-
-
-        }catch (Exception e) {
-            // Handle any exceptions that may occur during initialization
-            e.printStackTrace();
-            Toast.makeText(this, "Error: Failed to initialize. Please try again later.", Toast.LENGTH_SHORT).show();
-            // Show an error message or take appropriate action
-        }
-    }
-}
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
-
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
-import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ChatActivity2 extends AppCompatActivity {
-    private String mDoctorId;
-    private String mDoctorName;
-    private EditText mMessageEditText;
-    private Button mSendButton;
-    private RecyclerView mRecyclerView;
-    private ChatAdapter mChatAdapter;
-    private ArrayList<ChatMessage> mChatMessages;
-    private DatabaseReference mDatabaseReference;
-    private FirebaseUser mCurrentUser;
-    private FirebaseAuth mAuth;
+    private String messageRecieverId,getMessageRecievername,messagereceiverimage,messageSenderId;
+    private TextView username,userlastseen;
+    private CircularImageView userprofile;
+    private Toolbar chattoolbar;
+    private ImageButton sendMessageButton,sendFileButton;
+    private EditText messagesentinput;
+    private FirebaseAuth mauth;
+    private DatabaseReference RootRef;
+    private final List<Messages> messagesList=new ArrayList<>();
+    private LinearLayoutManager linearLayoutManager;
+    private MessageAdapter messageAdapter;
+    private RecyclerView usermessagerecyclerview;
 
 
+    private String savecurrentTime,savecurrentDate;
+    private String checker="",myUrl="";
+    private StorageTask uploadTask;
+    private Uri fileuri;
+    private ProgressDialog loadingBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat2);
+        setContentView(R.layout.activity_chat);
+        loadingBar=new ProgressDialog(this);
+        mauth=FirebaseAuth.getInstance();
+        messageSenderId=mauth.getCurrentUser().getUid();
+        RootRef= FirebaseDatabase.getInstance().getReference();
 
-        mDoctorId = getIntent().getStringExtra("doctorId");
-        mDoctorName = getIntent().getStringExtra("doctorName");
+        messageRecieverId=getIntent().getExtras().get("visit_user_id").toString();
+        getMessageRecievername=getIntent().getExtras().get("visit_user_name").toString();
+        messagereceiverimage=getIntent().getExtras().get("visit_image").toString();
 
-        setTitle(mDoctorName);
 
-        // Initialize Firebase
-        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        mAuth = FirebaseAuth.getInstance();
-        mCurrentUser = mAuth.getCurrentUser();
-        if (mCurrentUser == null) {
-            // Not signed in, launch the Sign In activity
-            finish();
-            return;
-        }
+        setSupportActionBar(chattoolbar);
+        ActionBar actionBar=getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowCustomEnabled(true);
 
-        DatabaseReference chatRef = firebaseDatabase.getReference().child("chat").child(mCurrentUser.getUid()).child(mDoctorId);
-        chatRef.keepSynced(true);
+        LayoutInflater layoutInflater=(LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View actionbarview= layoutInflater.inflate(R.layout.custom_chat_bar,null);
+        actionBar.setCustomView(actionbarview);
 
-        mMessageEditText = findViewById(R.id.edit_text_message);
-        mSendButton = findViewById(R.id.button_send);
+        username=findViewById(R.id.custom_profile_name);
+        userlastseen=findViewById(R.id.custom_user_last_seen);
+        userprofile=findViewById(R.id.custom_profile_image);
+        sendMessageButton=findViewById(R.id.send_message_btn);
+        sendFileButton=findViewById(R.id.send_files_btn);
 
-        mRecyclerView = findViewById(R.id.recyclerView);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mChatMessages = new ArrayList<>();
-        mChatAdapter = new ChatAdapter(mChatMessages);
-        mRecyclerView.setAdapter(mChatAdapter);
+        messagesentinput=findViewById(R.id.input_messages);
 
-        mSendButton.setOnClickListener(new View.OnClickListener() {
+        messageAdapter=new MessageAdapter(messagesList);
+        usermessagerecyclerview=findViewById(R.id.private_message_list_of_users);
+        linearLayoutManager=new LinearLayoutManager(this);
+        usermessagerecyclerview.setLayoutManager(linearLayoutManager);
+        usermessagerecyclerview.setAdapter(messageAdapter);
+
+        Calendar calendar=Calendar.getInstance();
+
+        SimpleDateFormat currentDate=new SimpleDateFormat("dd/MM/yyyy");
+        savecurrentDate=currentDate.format(calendar.getTime());
+
+        SimpleDateFormat currentTime=new SimpleDateFormat("hh:mm a");
+        savecurrentTime=currentTime.format(calendar.getTime());
+
+
+        username.setText(getMessageRecievername);
+        Picasso.get().load(messagereceiverimage).placeholder(R.drawable.profile_image).into(userprofile);
+        Displaylastseen();
+        sendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String messageText = mMessageEditText.getText().toString().trim();
-                if (!messageText.isEmpty()) {
-                    ChatMessage chatMessage = new ChatMessage(messageText, mCurrentUser.getUid(), mDoctorId,1);
-                    mDatabaseReference = chatRef.push();
-                    mDatabaseReference.setValue(chatMessage);
-                    mMessageEditText.setText("");
-                }
+                SendMessage();
             }
         });
 
-        chatRef.addChildEventListener(new ChildEventListener() {
+        sendFileButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @NonNull String previousChildName) {
-                ChatMessage chatMessage = dataSnapshot.getValue(ChatMessage.class);
-                mChatMessages.add(chatMessage);
-                mChatAdapter.notifyDataSetChanged();
-                mRecyclerView.scrollToPosition(mChatMessages.size() - 1);
+            public void onClick(View v) {
+                CharSequence options[]=new CharSequence[]{
+                        "Images","PDF Files","Ms Word Files"
+                };
+
+                AlertDialog.Builder builder=new AlertDialog.Builder(ChatActivity2.this);
+                builder.setTitle("Select File");
+                builder.setItems(options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(which==0)
+                        {
+                            checker="image";
+                            Intent intent=new Intent();
+                            intent.setAction(Intent.ACTION_GET_CONTENT);
+                            intent.setType("image/*");
+                            startActivityForResult(intent.createChooser(intent,"Select Image"),555);
+
+                        }else if(which==1)
+                        {
+                            checker="pdf";
+                            Intent intent=new Intent();
+                            intent.setAction(Intent.ACTION_GET_CONTENT);
+                            intent.setType("application/pdf");
+                            startActivityForResult(intent.createChooser(intent,"Select PDF File"),555);
+
+
+                        }else if(which==2)
+                        {
+                            checker="docx";
+                            Intent intent=new Intent();
+                            intent.setAction(Intent.ACTION_GET_CONTENT);
+                            intent.setType("application/msword");
+                            startActivityForResult(intent.createChooser(intent,"Select Ms Word File"),555);
+                        }
+                    }
+                });
+
+                builder.show();
+            }
+        });
+
+        RootRef.child("Messages").child(messageSenderId).child(messageRecieverId).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Messages messages=dataSnapshot.getValue(Messages.class);
+                messagesList.add(messages);
+                messageAdapter.notifyDataSetChanged();
+                usermessagerecyclerview.smoothScrollToPosition(usermessagerecyclerview.getAdapter().getItemCount());
             }
 
             @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @NonNull String previousChildName) {
-                // Do nothing
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                // Do nothing
+
             }
 
             @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @NonNull String previousChildName) {
-                // Do nothing
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Do nothing
+
             }
         });
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mDatabaseReference != null) {
-            mDatabaseReference.removeEventListener(mChildEventListener);
-        }
-    }
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-    private static class ChatViewHolder extends RecyclerView.ViewHolder {
-        public ChatViewHolder(View itemView) {
-            super(itemView);
-        }
-    }
+        if(requestCode==555 && resultCode==RESULT_OK && data!=null && data.getData()!=null)
+        {
+            loadingBar.setTitle("Sending File");
+            loadingBar.setMessage("please wait, we are sending that file...");
+            loadingBar.setCanceledOnTouchOutside(false);
+            loadingBar.show();
 
-    private class ChatAdapter extends RecyclerView.Adapter<ChatViewHolder> {
-        private ArrayList<ChatMessage> mChatMessages;
+            fileuri=data.getData();
+            if(!checker.equals("image"))
+            {
+                StorageReference storageReference= FirebaseStorage.getInstance().getReference().child("Document Files");
 
-        public ChatAdapter(ArrayList<ChatMessage> chatMessages) {
-            mChatMessages = chatMessages;
-        }
+                final String messageSenderRef="Messages/"+messageSenderId+"/"+messageRecieverId;
+                final String messageReceiverRef="Messages/"+messageRecieverId+"/"+messageSenderId;
 
-        @NonNull
-        @Override
-        public ChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat_message, parent, false);
-            return new ChatViewHolder(itemView);
-        }
+                DatabaseReference Usermessagekeyref=RootRef.child("Messages").child(messageSenderId).child(messageRecieverId).push();
+                final String messagePushID=Usermessagekeyref.getKey();
 
-        @Override
-        public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
-            ChatMessage chatMessage = mChatMessages.get(position);
-            // Bind chat message to ViewHolder
-        }
+                final StorageReference filepath=storageReference.child(messagePushID+"."+checker);
 
-        @Override
-        public int getItemCount() {
-            return mChatMessages.size();
-        }
-    }
-    private ChildEventListener mChildEventListener = new ChildEventListener() {
-        @Override
-        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-            // Handle child added event
-        }
+                filepath.putFile(fileuri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                String downloadUrl = uri.toString();
 
-        @Override
-        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            // Handle child changed event
-        }
-
-        @Override
-        public void onChildRemoved(DataSnapshot dataSnapshot) {
-            // Handle child removed event
-        }
-
-        @Override
-        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-            // Handle child moved event
-        }
-
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
-            // Handle cancellation event
-        }
-    };
-
-}*/
-import android.os.Bundle;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
-import java.util.Date;
-
-public class ChatActivity2 extends AppCompatActivity {
-
-    private FirebaseAuth mAuth;
-    private DatabaseReference mMessagesDatabase;
-    private EditText mMessageEditText;
-    private Button mSendButton;
-    private RecyclerView mChatRecyclerView;
-    private FirebaseRecyclerAdapter<ChatMessage, ChatAdapter.ChatViewHolder> mAdapter;
-    private LinearLayoutManager mLinearLayoutManager;
-    private String mCurrentUserId;
-    private String mDoctorId;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat2);
-
-        mAuth = FirebaseAuth.getInstance();
-        mCurrentUserId = mAuth.getCurrentUser().getUid();
-        mDoctorId = getIntent().getStringExtra("doctorId");
-
-        mMessagesDatabase = FirebaseDatabase.getInstance().getReference().child("messages");
-
-        mMessageEditText = findViewById(R.id.edit_text_message);
-        mSendButton = findViewById(R.id.button_send);
-        mChatRecyclerView = findViewById(R.id.recycler_view_chat);
-
-        mLinearLayoutManager = new LinearLayoutManager(this);
-        mLinearLayoutManager.setStackFromEnd(true);
-        mChatRecyclerView.setLayoutManager(mLinearLayoutManager);
+                                Map messageDocsBody = new HashMap();
+                                messageDocsBody.put("message",downloadUrl);
+                                messageDocsBody.put("name",fileuri.getLastPathSegment());
+                                messageDocsBody.put("type",checker);
+                                messageDocsBody.put("from",messageSenderId);
+                                messageDocsBody.put("to", messageRecieverId);
+                                messageDocsBody.put("messageID", messagePushID);
+                                messageDocsBody.put("time", savecurrentTime);
+                                messageDocsBody.put("date", savecurrentDate);
 
 
+                                Map messageBodyDDetail = new HashMap();
+                                messageBodyDDetail.put(messageSenderRef + "/" + messagePushID, messageDocsBody);
+                                messageBodyDDetail.put(messageReceiverRef + "/" + messagePushID, messageDocsBody);
 
-         FirebaseRecyclerOptions<ChatMessage> options = new FirebaseRecyclerOptions.Builder<ChatMessage>()
-                .setQuery(mMessagesDatabase, ChatMessage.class)
-                .build();
-
-        mAdapter = new FirebaseRecyclerAdapter<ChatMessage, ChatAdapter.ChatViewHolder>(options) {
-            @NonNull
-            @Override
-            public ChatAdapter.ChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat_message, parent, false);
-                return new ChatAdapter.ChatViewHolder(view);
+                                RootRef.updateChildren(messageBodyDDetail);
+                                loadingBar.dismiss();
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                loadingBar.dismiss();
+                                Toast.makeText(ChatActivity2.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
+                        double p=(100.0*taskSnapshot.getBytesTransferred())/taskSnapshot.getTotalByteCount();
+                        loadingBar.setMessage((int) p+" % Uploading...");
+                    }
+                });
             }
+            else if(checker.equals("image"))
+            {
+                StorageReference storageReference= FirebaseStorage.getInstance().getReference().child("Image Files");
 
-            @Override
-            protected void onBindViewHolder(@NonNull ChatAdapter.ChatViewHolder holder, int position, @NonNull ChatMessage message) {
-                holder.bind(message, mCurrentUserId, mDoctorId);
+                final String messageSenderRef="Messages/"+messageSenderId+"/"+messageRecieverId;
+                final String messageReceiverRef="Messages/"+messageRecieverId+"/"+messageSenderId;
+
+                DatabaseReference Usermessagekeyref=RootRef.child("Messages").child(messageSenderId).child(messageRecieverId).push();
+                final String messagePushID=Usermessagekeyref.getKey();
+
+                final StorageReference filepath=storageReference.child(messagePushID+"."+"jpg");
+                uploadTask =filepath.putFile(fileuri);
+                uploadTask.continueWithTask(new Continuation() {
+                    @Override
+                    public Object then(@NonNull Task task) throws Exception {
+                        if(!task.isSuccessful())
+                        {
+                            throw task.getException();
+                        }
+                        return filepath.getDownloadUrl();
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        if(task.isSuccessful())
+                        {
+                            Uri downloadUrl=task.getResult();
+                            myUrl=downloadUrl.toString();
+
+                            Map messageTextBody=new HashMap();
+                            messageTextBody.put("message",myUrl);
+                            messageTextBody.put("name",fileuri.getLastPathSegment());
+                            messageTextBody.put("type",checker);
+                            messageTextBody.put("from",messageSenderId);
+                            messageTextBody.put("to",messageRecieverId);
+                            messageTextBody.put("messageID",messagePushID);
+                            messageTextBody.put("time",savecurrentTime);
+                            messageTextBody.put("date",savecurrentDate);
+
+                            Map messageBodyDetails =new HashMap();
+                            messageBodyDetails.put(messageSenderRef+"/"+messagePushID,messageTextBody);
+                            messageBodyDetails.put(messageReceiverRef+"/"+messagePushID,messageTextBody);
+
+                            RootRef.updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener() {
+                                @Override
+                                public void onComplete(@NonNull Task task) {
+                                    if(task.isSuccessful())
+                                    {
+                                        loadingBar.dismiss();
+                                        //Toast.makeText(ChatActivity.this,"Message sent Successfully...",Toast.LENGTH_SHORT).show();
+                                    }
+                                    else
+                                    {
+                                        loadingBar.dismiss();
+                                        Toast.makeText(ChatActivity2.this,"Error:",Toast.LENGTH_SHORT).show();
+                                    }
+                                    messagesentinput.setText("");
+                                }
+                            });
+                        }
+                    }
+                });
+
             }
-        };
+            else
+            {
+                loadingBar.dismiss();
+                Toast.makeText(this,"please select file",Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
-        mChatRecyclerView.setAdapter(mAdapter);
-
-        mSendButton.setOnClickListener(new View.OnClickListener() {
+    public void Displaylastseen()
+    {
+        RootRef.child("Users").child(messageRecieverId).addValueEventListener(new ValueEventListener() {
             @Override
-            public void onClick(View v) {
-                String messageText = mMessageEditText.getText().toString();
-                if (!messageText.isEmpty()) {
-                    String messageId = mMessagesDatabase.push().getKey();
-                    ChatMessage chatMessage = new ChatMessage( messageText, mCurrentUserId,new Date().getTime());
-                    mMessagesDatabase.child(messageId).setValue(chatMessage);
-                    mMessageEditText.setText("");
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.child("userState").hasChild("state"))
+                {
+                    String state=dataSnapshot.child("userState").child("state").getValue().toString();
+                    String date=dataSnapshot.child("userState").child("date").getValue().toString();
+                    String time=dataSnapshot.child("userState").child("time").getValue().toString();
+
+                    if(state.equals("online"))
+                    {
+                        userlastseen.setText("online");
+                    }
+                    else if(state.equals("offline"))
+                    {
+                        userlastseen.setText("Last seen: "+"\n"+date+" "+time);
+                    }
+                }
+                else
+                {
+                    userlastseen.setText("offline");
                 }
             }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
         });
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mAdapter.startListening();
-    }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mAdapter.stopListening();
+    private void SendMessage() {
+        String messagetext=messagesentinput.getText().toString();
+        if(TextUtils.isEmpty(messagetext))
+        {
+            Toast.makeText(this,"Please enter message first..",Toast.LENGTH_SHORT).show();
+        }
+        else
+        {
+            String messageSenderRef="Messages/"+messageSenderId+"/"+messageRecieverId;
+            String messageReceiverRef="Messages/"+messageRecieverId+"/"+messageSenderId;
+
+            DatabaseReference Usermessagekeyref=RootRef.child("Messages").child(messageSenderId).child(messageRecieverId).push();
+            String messagePushID=Usermessagekeyref.getKey();
+            Map messageTextBody=new HashMap();
+            messageTextBody.put("message",messagetext);
+            messageTextBody.put("type","text");
+            messageTextBody.put("from",messageSenderId);
+            messageTextBody.put("to",messageRecieverId);
+            messageTextBody.put("messageID",messagePushID);
+            messageTextBody.put("time",savecurrentTime);
+            messageTextBody.put("date",savecurrentDate);
+
+            Map messageBodyDetails =new HashMap();
+            messageBodyDetails.put(messageSenderRef+"/"+messagePushID,messageTextBody);
+            messageBodyDetails.put(messageReceiverRef+"/"+messagePushID,messageTextBody);
+
+            RootRef.updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener() {
+                @Override
+                public void onComplete(@NonNull Task task) {
+                    if(task.isSuccessful())
+                    {
+                        // Toast.makeText(ChatActivity.this,"Message sent Successfully...",Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                    {
+                        Toast.makeText(ChatActivity2.this,"Error:",Toast.LENGTH_SHORT).show();
+                    }
+                    messagesentinput.setText("");
+                }
+            });
+        }
     }
 }
-

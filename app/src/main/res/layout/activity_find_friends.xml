@@ -4,14 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:context=".FindFriendsActivity">
 
-    tools:context=".ChatActivity">
 
-
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/main_tabs_pager"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/find_friends_recyclerlist"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/app_name"></androidx.viewpager.widget.ViewPager>
-
+        android:layout_height="match_parent" />
 </RelativeLayout>

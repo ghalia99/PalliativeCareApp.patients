@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/drawable-anydpi/ic_profile.xml" value="0.1965" />
+        <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/drawable-xhdpi/buttons.xml" value="0.1965" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/drawable/button_background.xml" value="0.1195" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/drawable/ic_home.xml" value="0.1965" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/drawable/navigation_item_background.xml" value="0.125" />
@@ -11,17 +12,26 @@
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/drawable/sent_message_background.xml" value="0.2115" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_chat.xml" value="0.19610507246376813" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_chat2.xml" value="0.25" />
+        <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_find_friends.xml" value="0.2006340579710145" />
+        <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_group_chat.xml" value="0.2006340579710145" />
+        <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_image_view.xml" value="0.1" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_login.xml" value="0.25" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_main.xml" value="0.21" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_main2.xml" value="0.10833333333333334" />
+        <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_phone_login.xml" value="0.18854166666666666" />
+        <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_profile.xml" value="0.2006340579710145" />
+        <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_register.xml" value="0.18854166666666666" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_registration.xml" value="0.21666666666666667" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_search.xml" value="0.19610507246376813" />
+        <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_settings.xml" value="0.1" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_splash.xml" value="0.18854166666666666" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_splash_screen.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_topic_list.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_tracking.xml" value="0.10833333333333334" />
+        <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/app_bar_layout.xml" value="0.2006340579710145" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/doctor_list_item.xml" value="0.1547008547008547" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/fragment_doctor_home.xml" value="0.18854166666666666" />
+        <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/fragment_doctor_profile.xml" value="0.2006340579710145" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/fragment_posts.xml" value="0.18854166666666666" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/fragment_profile.xml" value="0.19610507246376813" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/fragment_setting.xml" value="0.19610507246376813" />
@@ -40,6 +50,7 @@
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/menu/doctor_bottom_navigation_menu.xml" value="0.18854166666666666" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/menu/menu_main.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/menu/menuu.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/menu/options_menu.xml" value="0.18854166666666666" />
       </map>
     </option>
   </component>

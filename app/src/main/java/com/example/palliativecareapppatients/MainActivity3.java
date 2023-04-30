@@ -24,7 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 
-public class ChatActivity extends AppCompatActivity {
+public class MainActivity3 extends AppCompatActivity {
 
     private Toolbar toolbar;
     private ViewPager myviewPager;
@@ -42,6 +42,8 @@ public class ChatActivity extends AppCompatActivity {
         databaseReference= FirebaseDatabase.getInstance().getReference();
 
 
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("ChatApp");
 
         myviewPager=findViewById(R.id.main_tabs_pager);
         mytabsAccessorAdapter=new TabsAccessorAdapter(getSupportFragmentManager());
@@ -62,7 +64,7 @@ public class ChatActivity extends AppCompatActivity {
         }
         else
         {
-         updateUserStatus("online");
+            updateUserStatus("online");
             VerifyUserexistance();
         }
     }
@@ -73,7 +75,7 @@ public class ChatActivity extends AppCompatActivity {
         FirebaseUser currentUser=firebaseAuth.getCurrentUser();
         if(currentUser!=null)
         {
-          updateUserStatus("offline");
+            updateUserStatus("offline");
         }
 
     }
@@ -84,13 +86,13 @@ public class ChatActivity extends AppCompatActivity {
         FirebaseUser currentUser=firebaseAuth.getCurrentUser();
         if(currentUser!=null)
         {
-          updateUserStatus("offline");
+            updateUserStatus("offline");
         }
     }
 
     private void VerifyUserexistance() {
         String currentUserID=firebaseAuth.getCurrentUser().getUid();
-        databaseReference.child("users").child(currentUserID).addValueEventListener(new ValueEventListener() {
+        databaseReference.child("Users").child(currentUserID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(dataSnapshot.child("name").exists())
@@ -99,7 +101,7 @@ public class ChatActivity extends AppCompatActivity {
                 }
                 else
                 {
-              //      sendUserToSettingsActivity();
+                    sendUserToSettingsActivity();
                 }
             }
 
@@ -112,25 +114,23 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void sendUserToLoginActivity() {
-        Intent loginintent=new Intent(ChatActivity.this,LoginActivity.class);
+        Intent loginintent=new Intent(MainActivity3.this,LoginActivity.class);
         loginintent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(loginintent);
         finish();
     }
 
     private void sendUserToSettingsActivity() {
-        Intent settingsintent=new Intent(ChatActivity.this,SettingsActivity.class);
+        Intent settingsintent=new Intent(MainActivity3.this,SettingsActivity.class);
         startActivity(settingsintent);
-        finish();
     }
 
     private void sendUserToFindFriendsActivity() {
-        Intent friendsintent=new Intent(ChatActivity.this,FindFriendsActivity.class);
+        Intent friendsintent=new Intent(MainActivity3.this,FindFriendsActivity.class);
         startActivity(friendsintent);
-        finish();
     }
 
-   private void updateUserStatus(String state)
+    private void updateUserStatus(String state)
     {
         String savecurrentTime,savecurrentDate;
         Calendar calendar=Calendar.getInstance();
@@ -147,7 +147,7 @@ public class ChatActivity extends AppCompatActivity {
         hashMap.put("state",state);
 
         currentUserId=firebaseAuth.getCurrentUser().getUid();
-        databaseReference.child("users").child(currentUserId).child("userState").updateChildren(hashMap);
+        databaseReference.child("Users").child(currentUserId).child("userState").updateChildren(hashMap);
 
     }
 
@@ -173,10 +173,10 @@ public class ChatActivity extends AppCompatActivity {
         }
         else if(id==R.id.main_logout_menu)
         {
-           updateUserStatus("offline");
+            updateUserStatus("offline");
             firebaseAuth.signOut();
             sendUserToLoginActivity();
-            Toast.makeText(ChatActivity.this,"User logged out succuessfully...",Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity3.this,"User logged out succuessfully...",Toast.LENGTH_SHORT).show();
         }
 
         return true;

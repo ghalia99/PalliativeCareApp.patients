@@ -40,6 +40,11 @@
         </activity>
         <activity
             android:name=".MainActivity2"
+            android:exported="false" /><activity
+        android:name=".SettingsActivity"
+        android:exported="false" />
+        <activity
+            android:name=".FindFriendsActivity"
             android:exported="false" />
         <activity
             android:name=".TrackingActivity"
@@ -62,6 +67,8 @@
         <activity
             android:name=".MainActivity"
             android:exported="false" />
-    </application>
 
+    </application>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 </manifest>
