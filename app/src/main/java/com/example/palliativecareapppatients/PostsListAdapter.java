@@ -1,21 +1,6 @@
 package com.example.palliativecareapppatients;
 
-import android.content.Context;
-import android.net.Uri;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.VideoView;
-
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.bumptech.glide.Glide;
-
-import java.util.List;
-
+/*
 public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<Post> postsList;
@@ -84,7 +69,7 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     @Override
     public int getItemViewType(int position) {
-        return postsList.get(position).getType();
+        return postsList.get(position);
     }
 
     // View holder for text type post
@@ -101,9 +86,9 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
 
         public void bind(Post post) {
-            doctorNameTextView.setText(post.getPostDoctorName());
-            postTitleTextView.setText(post.getPostText());
-            postContentTextView.setText(post.getPostTime());
+            doctorNameTextView.setText(post.getAuthorId());
+            postTitleTextView.setText(post.getTitle());
+            postContentTextView.setText(post.getDescription());
         }
     }
 
@@ -123,10 +108,10 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
 
         public void bind(Post post) {
-            doctorNameTextView.setText(post.getPostDoctorName());
-            postTitleTextView.setText(post.getPostText());
+            doctorNameTextView.setText(post.getTitle());
+            postTitleTextView.setText(post.getDescription());
             // Set video URI to the VideoView
-            postVideoPlayerView.setVideoURI(Uri.parse(post.getPostVideo()));
+            postVideoPlayerView.setVideoURI(Uri.parse(post.getVideoUrl()));
             // Start video playback
             postVideoPlayerView.start();
         }
@@ -146,12 +131,12 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
 
         public void bind(Post post) {
-            doctorNameTextView.setText(post.getPostDoctorName());
-            postTitleTextView.setText(post.getPostText());
+            doctorNameTextView.setText(post.getAuthorId());
+            postTitleTextView.setText(post.getTitle());
             // Load infographic image using image loading library like Glide or Picasso
             // For example:
             Glide.with(itemView.getContext())
-                    .load(post.getPostImage())
+                    .load(post.getImageUrl())
                     .into(postImageView);
         }
     }
@@ -170,12 +155,12 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
 
         public void bind(Post post) {
-            doctorNameTextView.setText(post.getPostDoctorName());
-            postTitleTextView.setText(post.getPostText());
+            doctorNameTextView.setText(post.getAuthorId());
+            postTitleTextView.setText(post.getTitle());
             // Load PDF image using image loading library like Glide or Picasso
             // For example:
             Glide.with(itemView.getContext())
-                    .load(post.getPostFile())
+                    .load(post.getFileUrl())
                     .into(postPdfImageView);
         }
     }
@@ -192,8 +177,8 @@ public class PostsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
 
         public void bind(Post post) {
-            doctorNameTextView.setText(post.getPostDoctorName());
-            postTitleTextView.setText(post.getPostText());
+            doctorNameTextView.setText(post.getAuthorId());
+            postTitleTextView.setText(post.getDescription());
         }
     }
-}
+}*/

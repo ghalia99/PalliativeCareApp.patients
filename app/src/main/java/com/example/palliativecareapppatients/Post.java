@@ -2,33 +2,26 @@ package com.example.palliativecareapppatients;
 
 public class Post {
     private String postId;
-    private String postText;
-    private String postImage;
-    private String postVideo;
-    private String postGif;
-    private String postFile;
-    private String postDoctorName;
-    private String postTopicId;
-    private String postTime;
-    private int type;
-    public static final int TYPE_TEXT = 0;
-    public static final int TYPE_VIDEO = 1;
-    public static final int TYPE_INFOGRAPHIC = 2;
-    public static final int TYPE_PDF = 3;
-    public static final int TYPE_DEFAULT = 4;
-    public Post(String postId ,String postTopicId, String postText, String postImage, String postVideo, String postGif, String postFile, String postDoctorName, String postTime) {
-        this.postId = postId;
-        this.postText = postText;
-        this.postImage = postImage;
-        this.postVideo = postVideo;
-        this.postGif = postGif;
-        this.postFile = postFile;
-        this.postDoctorName = postDoctorName;
-        this.postTime = postTime;
-        this.postTopicId=postTopicId;
+    private String title;
+    private String description;
+    private String authorId;
+    private String imageUrl;
+    private String videoUrl;
+    private String fileUrl;
+    private long timestamp;
+    private String topic;
+
+    public Post() {
+        // Default constructor required for calls to DataSnapshot.getValue(Post.class)
     }
 
-    // Getters and Setters
+    public Post(String title, String description, String authorId, String topic) {
+        this.title = title;
+        this.description = description;
+        this.authorId = authorId;
+        this.timestamp = System.currentTimeMillis();
+        this.topic = topic;
+    }
 
     public String getPostId() {
         return postId;
@@ -38,67 +31,67 @@ public class Post {
         this.postId = postId;
     }
 
-    public String getPostText() {
-        return postText;
+    public String getTitle() {
+        return title;
     }
 
-    public void setPostText(String postText) {
-        this.postText = postText;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public String getPostImage() {
-        return postImage;
+    public String getDescription() {
+        return description;
     }
 
-    public void setPostImage(String postImage) {
-        this.postImage = postImage;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public String getPostVideo() {
-        return postVideo;
+    public String getAuthorId() {
+        return authorId;
     }
 
-    public void setPostVideo(String postVideo) {
-        this.postVideo = postVideo;
+    public void setAuthorId(String authorId) {
+        this.authorId = authorId;
     }
 
-    public String getPostGif() {
-        return postGif;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setPostGif(String postGif) {
-        this.postGif = postGif;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
-    public String getPostFile() {
-        return postFile;
+    public String getVideoUrl() {
+        return videoUrl;
     }
 
-    public void setPostFile(String postFile) {
-        this.postFile = postFile;
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
     }
 
-    public String getPostDoctorName() {
-        return postDoctorName;
+    public String getFileUrl() {
+        return fileUrl;
     }
 
-    public void setPostDoctorName(String postDoctorName) {
-        this.postDoctorName = postDoctorName;
+    public void setFileUrl(String fileUrl) {
+        this.fileUrl = fileUrl;
     }
 
-    public String getPostTime() {
-        return postTime;
+    public long getTimestamp() {
+        return timestamp;
     }
 
-    public void setPostTime(String postTime) {
-        this.postTime = postTime;
-    }
-    public int getType() {
-        return type;
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
-    // Setter for post type
-    public void setType(int type) {
-        this.type = type;
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
     }
 }
