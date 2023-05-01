@@ -62,9 +62,9 @@ public class FindFriendsActivity extends AppCompatActivity {
                         holder.itemView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                String visit_user_id=getRef(position).getKey();
-                                Intent profileintent=new Intent(FindFriendsActivity.this, ProfileActivity.class);
-                                profileintent.putExtra("visit_user_id",visit_user_id);
+                                String visit_user_id = getRef(holder.getAdapterPosition()).getKey();
+                                Intent profileintent = new Intent(FindFriendsActivity.this, ProfileActivity.class);
+                                profileintent.putExtra("visit_user_id", visit_user_id);
                                 startActivity(profileintent);
                             }
                         });

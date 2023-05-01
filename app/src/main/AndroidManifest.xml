@@ -38,6 +38,8 @@
             android:windowSoftInputMode="adjustResize">
 
         </activity>
+        <activity android:name=".ProfileActivity" />
+
         <activity
             android:name=".MainActivity2"
             android:exported="false" /><activity

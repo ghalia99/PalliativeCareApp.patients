@@ -6,6 +6,7 @@
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/drawable-anydpi/ic_profile.xml" value="0.1965" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/drawable-xhdpi/buttons.xml" value="0.1965" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/drawable/button_background.xml" value="0.1195" />
+        <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/drawable/ic_add.xml" value="0.137" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/drawable/ic_home.xml" value="0.1965" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/drawable/navigation_item_background.xml" value="0.125" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/drawable/received_message_background.xml" value="0.2115" />
@@ -51,6 +52,7 @@
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/menu/menu_main.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/menu/menuu.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/menu/options_menu.xml" value="0.18854166666666666" />
+        <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/menu/tab_menu.xml" value="0.4875" />
       </map>
     </option>
   </component>

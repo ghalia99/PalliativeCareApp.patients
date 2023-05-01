@@ -53,12 +53,12 @@ public class ProfileActivity extends AppCompatActivity {
         contactsRef=FirebaseDatabase.getInstance().getReference().child("Contacts");
         NotificationRef=FirebaseDatabase.getInstance().getReference().child("Notifications");
 
-        ref.child("Users").child(reciever_id).addValueEventListener(new ValueEventListener() {
+        ref.child("users").child(reciever_id).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists() && dataSnapshot.hasChild("name") && dataSnapshot.hasChild("image"))
+                if(dataSnapshot.exists() && dataSnapshot.hasChild("firstName") && dataSnapshot.hasChild("image"))
                 {
-                    String retrieveusername=dataSnapshot.child("name").getValue().toString();
+                    String retrieveusername=dataSnapshot.child("firstName").getValue().toString();
                     String retrieveuserstatus=dataSnapshot.child("status").getValue().toString();
                     String retrieveuserimage=dataSnapshot.child("image").getValue().toString();
 
@@ -68,9 +68,9 @@ public class ProfileActivity extends AppCompatActivity {
 
                     ManageChatRequest();
                 }
-                else if(dataSnapshot.exists() && dataSnapshot.hasChild("name"))
+                else if(dataSnapshot.exists() && dataSnapshot.hasChild("firstName"))
                 {
-                    String retrieveusername=dataSnapshot.child("name").getValue().toString();
+                    String retrieveusername=dataSnapshot.child("firstName").getValue().toString();
                     String retrieveuserstatus=dataSnapshot.child("status").getValue().toString();
 
                     visit_name.setText(retrieveusername);

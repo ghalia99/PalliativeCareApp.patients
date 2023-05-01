@@ -1,73 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    tools:context=".MainActivity">
 
-    <!-- Header section with profile image and name -->
-    <LinearLayout
+
+
+
+
+    <!-- TabLayout -->
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tab_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingBottom="16dp">
 
-        <ImageView
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:src="@drawable/ic_profile" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tabGravity="fill"
+        app:tabIndicatorColor="@android:color/white"
+        app:tabIndicatorHeight="3dp"
+        app:tabMode="fixed"
+        app:tabSelectedTextColor="@android:color/white"
+        app:tabTextColor="@android:color/white" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="John Smith"
-            android:textColor="#000000"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add_post_button"
+        android:layout_width="71dp"
+        android:layout_height="472dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"
+        android:layout_marginBottom="24dp"
+        app:srcCompat="@drawable/ic_add"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tab_layout"
+        app:layout_constraintVertical_bias="0.982" />
 
-    </LinearLayout>
 
-    <!-- Status update section -->
-    <EditText
+
+    <!-- Fragment Container -->
+    <FrameLayout
+        android:id="@+id/fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#FFFFFF"
-        android:hint="What's on your mind?"
-        android:padding="8dp" />
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tab_layout"
+        app:layout_constraintVertical_bias="1.0"
+        tools:layout_editor_absoluteX="0dp">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#CCCCCC" />
 
-    <!-- Post button -->
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/button_background"
-        android:paddingStart="24dp"
-        android:paddingTop="8dp"
-        android:paddingEnd="24dp"
-        android:paddingBottom="8dp"
-        android:text="Post"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp" />
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#CCCCCC" />
-
-    <!-- List of posts -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/postsRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingTop="16dp"
-        android:clipToPadding="false"
-        android:scrollbars="none" />
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

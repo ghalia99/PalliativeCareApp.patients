@@ -42,17 +42,7 @@ public class PostsFragment extends Fragment {
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference  myRef = database.getReference("posts");
-        Post post1 = new Post("1", topicId,"أمراض الكبد وأعراضها", "C:\\Users\\HP\\Documents\\صور المشروع\\أعراض.jpg", "", "", "", "دكتور أحمد", "2023-04-19");
-        post1.setType(Post.TYPE_TEXT); // تعيين نوع المنشور إلى نص
-          myRef.child(post1.getPostId()).setValue(post1);
 
-        Post post2 = new Post("2",topicId, "", "", "https://www.mayoclinic.org/ar/diseases-conditions/cirrhosis/symptoms-causes/syc-20351487", "", "", "دكتورة سارة", "2023-04-18");
-        post2.setType(Post.TYPE_VIDEO); // تعيين نوع المنشور إلى فيديو
-        myRef.child(post2.getPostId()).setValue(post2);
-
-        Post post3 = new Post("3",topicId, "", "", "", "https://twitter.com/i/status/1257416051152892065", "", "دكتور محمد", "2023-04-17");
-        post3.setType(Post.TYPE_INFOGRAPHIC); // تعيين نوع المنشور إلى إنفوجرافيك
-        myRef.child(post3.getPostId()).setValue(post3);
 
 
 
