@@ -1,18 +1,13 @@
 package com.example.palliativecareapppatients;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
@@ -20,6 +15,11 @@ public class TopicListAdapter extends RecyclerView.Adapter<TopicListAdapter.Topi
 
     private List<Topic> mTopics;
     private OnTopicClickListener mListener;
+
+    public interface OnTopicClickListener {
+        void onTopicClick(int position);
+        void onFollowClick(int position);
+    }
 
     public TopicListAdapter(List<Topic> topics, OnTopicClickListener listener) {
         mTopics = topics;
@@ -29,8 +29,7 @@ public class TopicListAdapter extends RecyclerView.Adapter<TopicListAdapter.Topi
     @NonNull
     @Override
     public TopicViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View view = inflater.inflate(R.layout.list_item_topic, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_topic, parent, false);
         return new TopicViewHolder(view);
     }
 
@@ -38,28 +37,6 @@ public class TopicListAdapter extends RecyclerView.Adapter<TopicListAdapter.Topi
     public void onBindViewHolder(@NonNull TopicViewHolder holder, int position) {
         Topic topic = mTopics.get(position);
         holder.bind(topic);
-        Button followButton = holder.itemView.findViewById(R.id.button_follow);
-        followButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Get the topic ID from the currently clicked item
-                int position = holder.getAbsoluteAdapterPosition();
-                Topic topic = mTopics.get(position);
-                String topicId = topic.getId();
-
-                // Update the text of the button
-                String buttonText = ((Button) v).getText().toString();
-                if (buttonText.equals("Follow")) {
-                    ((Button) v).setText("Unfollow");
-                    // Save "follow" status as true in the database
-                    saveFollowStatusToDatabase(topicId, true);
-                } else if (buttonText.equals("Unfollow")) {
-                    ((Button) v).setText("Follow");
-                    // Save "follow" status as false in the database
-                    saveFollowStatusToDatabase(topicId, false);
-                }
-            }
-        });
     }
 
     @Override
@@ -67,20 +44,26 @@ public class TopicListAdapter extends RecyclerView.Adapter<TopicListAdapter.Topi
         return mTopics.size();
     }
 
-    public class TopicViewHolder extends RecyclerView.ViewHolder {
+    public class TopicViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private TextView mTitleTextView;
         private TextView mDescriptionTextView;
+        private Button mFollowButton;
 
         public TopicViewHolder(@NonNull View itemView) {
             super(itemView);
+
             mTitleTextView = itemView.findViewById(R.id.topic_title);
             mDescriptionTextView = itemView.findViewById(R.id.topic_description);
-            itemView.setOnClickListener(new View.OnClickListener() {
+            mFollowButton = itemView.findViewById(R.id.button_follow);
+
+            itemView.setOnClickListener(this);
+            mFollowButton.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View view) {
-                    if (mListener != null) {
-                        mListener.onTopicClick(getAdapterPosition());
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        mListener.onFollowClick(position);
                     }
                 }
             });
@@ -89,30 +72,21 @@ public class TopicListAdapter extends RecyclerView.Adapter<TopicListAdapter.Topi
         public void bind(Topic topic) {
             mTitleTextView.setText(topic.getTitle());
             mDescriptionTextView.setText(topic.getDescription());
+
+            // Set the button text based on the follow state
+            if (topic.getIs_followed()) {
+                mFollowButton.setText("Unfollow");
+            } else {
+                mFollowButton.setText("Follow");
+            }
+        }
+
+        @Override
+        public void onClick(View v) {
+            int position = getAdapterPosition();
+            if (position != RecyclerView.NO_POSITION) {
+                mListener.onTopicClick(position);
+            }
         }
     }
-
-    private void saveFollowStatusToDatabase(String topicId, boolean isFollowed) {
-        DatabaseReference topicsRef = FirebaseDatabase.getInstance().getReference().child("topics").child(topicId);
-
-        topicsRef.child("is_followed").setValue(isFollowed)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            // Update successful
-                            Log.d("---", "Follow status updated in database");
-                        } else {
-                            // Update failed
-                            Log.e("TAG", "Failed to update follow status in database: " + task.getException());
-                        }
-                    }
-                });
-    }
-
-    public interface OnTopicClickListener {
-        void onTopicClick(int position);
-
-    }
 }
-

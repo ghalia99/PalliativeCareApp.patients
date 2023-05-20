@@ -5,7 +5,7 @@ public class Topic {
     private String id;
     private String title;
     private String description;
-private boolean is_followed;
+    private boolean is_followed;
     public Topic() {}
 
     public Topic(String id, String title, String description,boolean is_followed) {

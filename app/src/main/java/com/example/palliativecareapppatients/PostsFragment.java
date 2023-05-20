@@ -1,79 +1,59 @@
 package com.example.palliativecareapppatients;
 
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PostsFragment extends Fragment {
+    private RecyclerView recyclerView;
+    private PostListAdapter adapter;
+    private List<Post> postList;
 
-  /*  private String topicId;
-    private String topicTitle;
-    private List<Post> mPosts = new ArrayList<>();
-    private PostsListAdapter mAdapter;
+    private FirebaseFirestore firestore;
 
-    private FirebaseFirestore mFirestore;
-
+    @Nullable
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference  myRef = database.getReference("posts");
-
-
-
-
-        // Initialize Firestore
-        mFirestore = FirebaseFirestore.getInstance();
-
-        // Retrieve topic information from arguments
-        if (getArguments() != null) {
-            topicId = getArguments().getString("topicId");
-            topicTitle = getArguments().getString("topicTitle");
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_posts, container, false);
-
-        // Set the title of the fragment to the topic title
-        if (getActivity() instanceof AppCompatActivity) {
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(topicTitle);
-        }
-
-        // Initialize RecyclerView
-        RecyclerView mRecyclerView = view.findViewById(R.id.posts_list);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-        // Initialize adapter
-        mAdapter = new PostsListAdapter(mPosts,getActivity());
-
-        mRecyclerView.setAdapter(mAdapter);
-
-        // Fetch posts from database
-        fetchPostsFromDatabase(topicId);
-
+        recyclerView = view.findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        postList = new ArrayList<>();
+        adapter = new PostListAdapter(postList);
+        recyclerView.setAdapter(adapter);
+        firestore = FirebaseFirestore.getInstance();
+        loadPosts();
         return view;
     }
 
-    private void fetchPostsFromDatabase(String topicId) {
-        DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference("posts");
-        Query query = postsRef.orderByChild("topicId").equalTo(topicId);
-        query.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                List<Post> posts = new ArrayList<>();
-                for (DataSnapshot postSnapshot : snapshot.getChildren()) {
-                    Post post = postSnapshot.getValue(Post.class);
-                    posts.add(post);
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Failed to fetch posts from database: " + error.getMessage());
-            }
-        });
-    }*/
+    private void loadPosts() {
+        firestore.collection("Posts")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        postList.clear();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            Post post = document.toObject(Post.class);
+                            postList.add(post);
+                        }
+                        adapter.notifyDataSetChanged();
+                    } else {
+                        // Handle error
+                    }
+                });
+    }
 }

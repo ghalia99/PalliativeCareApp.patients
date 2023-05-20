@@ -1,5 +1,8 @@
 package com.example.palliativecareapppatients;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class User {
 
     private String firstName;
@@ -9,6 +12,7 @@ public class User {
     private String mobileNo;
     private String type;
     private String id;
+    private Map<String, Boolean> followingTopics;
 
     public User() {
         // Empty constructor needed for Firebase
@@ -21,8 +25,16 @@ public class User {
         this.address = address;
         this.mobileNo = mobileNo;
         this.type = type;
+        followingTopics = new HashMap<>();
+
+    }
+    public Map<String, Boolean> getFollowingTopics() {
+        return followingTopics;
     }
 
+    public void setFollowingTopics(Map<String, Boolean> followingTopics) {
+        this.followingTopics = followingTopics;
+    }
     public String getFirstName() {
         return firstName;
     }

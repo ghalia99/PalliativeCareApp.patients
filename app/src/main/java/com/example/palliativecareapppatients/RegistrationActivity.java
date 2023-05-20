@@ -3,7 +3,6 @@ package com.example.palliativecareapppatients;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -121,40 +120,28 @@ public class RegistrationActivity extends AppCompatActivity {
                                     userMap.put("type", userType);
 
 
-
                                     mDatabase.child("users").child(uid).setValue(userMap)
                                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                 @Override
                                                 public void onComplete(@NonNull Task<Void> task) {
                                                     if (task.isSuccessful()) {
-                                                        if(userType.equals("doctor")){
-                                                        Toast.makeText(getApplicationContext(), "Registration successful", Toast.LENGTH_LONG).show();
-                                                        Intent intent = new Intent(RegistrationActivity.this, MainActivity2.class);
+                                                        Toast.makeText(getApplicationContext(), "Registration Successful", Toast.LENGTH_LONG).show();
+                                                        Intent intent = new Intent(RegistrationActivity.this, ProfilePhotoActivity.class);
+                                                        intent.putExtra("userType", userType);
                                                         startActivity(intent);
-                                                        finish();}
-                                                        if(userType.equals("patient")){
-                                                            Toast.makeText(getApplicationContext(), "Registration successful", Toast.LENGTH_LONG).show();
-                                                            Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
-                                                            startActivity(intent);
-                                                            finish();}
-                                                        Log.d("Register", "Register button clicked");
-
+                                                        finish();
                                                     } else {
-                                                        Toast.makeText(getApplicationContext(), "Registration failed", Toast.LENGTH_LONG).show();
+                                                        Toast.makeText(getApplicationContext(), "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                                                     }
                                                 }
                                             });
+                                } else {
+                                    Toast.makeText(getApplicationContext(), "Registration failed", Toast.LENGTH_LONG).show();
                                 }
+
                             }
                         });
-
-
-
-
-
-
-
-                        }
+                }
             });
 
 
