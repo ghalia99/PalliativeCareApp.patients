@@ -56,27 +56,32 @@ public class ProfileActivity extends AppCompatActivity {
         ref.child("users").child(reciever_id).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists() && dataSnapshot.hasChild("firstName") && dataSnapshot.hasChild("image"))
-                {
-                    String retrieveusername=dataSnapshot.child("firstName").getValue().toString();
-                    String retrieveuserstatus=dataSnapshot.child("status").getValue().toString();
-                    String retrieveuserimage=dataSnapshot.child("image").getValue().toString();
+                if (dataSnapshot.exists()) {
+                    if (dataSnapshot.hasChild("firstName") && dataSnapshot.hasChild("middleName") && dataSnapshot.hasChild("familyName")) {
+                        String retrieveusername = dataSnapshot.child("firstName").getValue(String.class) +
+                                dataSnapshot.child("middleName").getValue(String.class) +
+                                dataSnapshot.child("familyName").getValue(String.class);
+                        String retrieveuserstatus = dataSnapshot.child("status").getValue(String.class);
+                        String retrieveuserimage = dataSnapshot.child("profilePhotoUrl").getValue(String.class);
 
-                    visit_name.setText(retrieveusername);
-                    visit_status.setText(retrieveuserstatus);
-                    Picasso.get().load(retrieveuserimage).into(visit_profile);
+                        visit_name.setText(retrieveusername);
+                        visit_status.setText(retrieveuserstatus);
+                        if (retrieveuserimage != null) {
+                            Picasso.get().load(retrieveuserimage).into(visit_profile);
+                        }
 
-                    ManageChatRequest();
-                }
-                else if(dataSnapshot.exists() && dataSnapshot.hasChild("firstName"))
-                {
-                    String retrieveusername=dataSnapshot.child("firstName").getValue().toString();
-                    String retrieveuserstatus=dataSnapshot.child("status").getValue().toString();
+                        ManageChatRequest();
+                    } else if (dataSnapshot.hasChild("firstName") && dataSnapshot.hasChild("middleName") && dataSnapshot.hasChild("familyName")) {
+                        String retrieveusername = dataSnapshot.child("firstName").getValue(String.class) +
+                                dataSnapshot.child("middleName").getValue(String.class) +
+                                dataSnapshot.child("familyName").getValue(String.class);
+                        String retrieveuserstatus = dataSnapshot.child("status").getValue(String.class);
 
-                    visit_name.setText(retrieveusername);
-                    visit_status.setText(retrieveuserstatus);
+                        visit_name.setText(retrieveusername);
+                        visit_status.setText(retrieveuserstatus);
 
-                    ManageChatRequest();
+                        ManageChatRequest();
+                    }
                 }
             }
 

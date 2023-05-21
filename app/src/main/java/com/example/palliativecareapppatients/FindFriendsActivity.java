@@ -1,5 +1,6 @@
 package com.example.palliativecareapppatients;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -20,6 +21,7 @@ import com.mikhaellopez.circularimageview.CircularImageView;
 import com.squareup.picasso.Picasso;
 
 public class FindFriendsActivity extends AppCompatActivity {
+
     private RecyclerView recyclerView;
     private DatabaseReference Userref;
 
@@ -34,9 +36,6 @@ public class FindFriendsActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setTitle("Find friends");
 
 
 
@@ -54,7 +53,7 @@ public class FindFriendsActivity extends AppCompatActivity {
         FirebaseRecyclerAdapter<Contacts,FindFriendsViewHolder> adapter=
                 new FirebaseRecyclerAdapter<Contacts, FindFriendsViewHolder>(options) {
                     @Override
-                    protected void onBindViewHolder(@NonNull FindFriendsViewHolder holder, final int position, @NonNull Contacts model) {
+                    protected void onBindViewHolder(@NonNull FindFriendsViewHolder holder, @SuppressLint("RecyclerView") final int position, @NonNull Contacts model) {
                         holder.username.setText(model.getName());
                         holder.userstatus.setText(model.getStatus());
                         Picasso.get().load(model.getImage()).placeholder(R.drawable.profile_image).into(holder.profile);
@@ -62,9 +61,9 @@ public class FindFriendsActivity extends AppCompatActivity {
                         holder.itemView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                String visit_user_id = getRef(holder.getAdapterPosition()).getKey();
-                                Intent profileintent = new Intent(FindFriendsActivity.this, ProfileActivity.class);
-                                profileintent.putExtra("visit_user_id", visit_user_id);
+                                String visit_user_id=getRef(position).getKey();
+                                Intent profileintent=new Intent(FindFriendsActivity.this,ProfileActivity.class);
+                                profileintent.putExtra("visit_user_id",visit_user_id);
                                 startActivity(profileintent);
                             }
                         });

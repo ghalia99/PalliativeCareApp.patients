@@ -90,8 +90,9 @@ public class RequestsFragment extends Fragment {
                                         if(dataSnapshot.hasChild("image"))
                                         {
                                             final String requestimage=dataSnapshot.child("image").getValue().toString();
-                                            Picasso.get().load(requestimage).placeholder(R.drawable.profile_image).into(holder.profilepicture);
-                                        }
+                                            if (requestimage != null) {
+                                                Picasso.get().load(requestimage).placeholder(R.drawable.profile_image).into(holder.profilepicture);
+                                            }                                        }
 
                                         final String requestusername=dataSnapshot.child("firstName").getValue().toString()+" "+dataSnapshot.child("familyName").getValue().toString();
                                         final String requeststatus=dataSnapshot.child("status").getValue().toString();
@@ -193,17 +194,30 @@ public class RequestsFragment extends Fragment {
                                 userref.child(userId).addValueEventListener(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                        if(dataSnapshot.hasChild("image"))
+                                        if (dataSnapshot.exists()) {
+                                        if(dataSnapshot.hasChild("profilePhotoUrl"))
                                         {
-                                            final String requestimage=dataSnapshot.child("image").getValue().toString();
+                                            final String requestimage=dataSnapshot.child("profilePhotoUrl").getValue().toString();
                                             Picasso.get().load(requestimage).placeholder(R.drawable.profile_image).into(holder.profilepicture);
                                         }
 
-                                        final String requestusername=dataSnapshot.child("name").getValue().toString();
-                                        final String requeststatus=dataSnapshot.child("status").getValue().toString();
+                                        final String requestusername=dataSnapshot.child("firstName").getValue().toString()+" "+ dataSnapshot.child("middleName").getValue(String.class) +" "+
+                                                dataSnapshot.child("familyName").getValue(String.class);
+                                            if(dataSnapshot.hasChild("status")){
+                                                final String requeststatus = dataSnapshot.child("status").getValue(String.class);
+                                                if (requeststatus != null) {
+                                                    holder.userstatus.setText("Want to connect with you");
+                                                }
+                                            }
 
-                                        holder.username.setText(requestusername);
-                                        holder.userstatus.setText("You have sent a request to "+requestusername);
+
+
+
+                                            if (requestusername != null) {
+                                                holder.username.setText(requestusername);
+                                            }
+
+                                        }
                                         holder.itemView.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
