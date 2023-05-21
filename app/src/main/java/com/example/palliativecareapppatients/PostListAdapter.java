@@ -121,22 +121,22 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             titleTextView.setText(post.getTitle());
             descriptionTextView.setText(post.getDescription());
             authorTextView.setText(post.getAuthorId());
-            timestampTextView.setText(Utils.formatTimestamp(post.getTimestamp()));
+            timestampTextView.setText(formatTimestamp(post.getTimestamp()));
         }
     }
 
     public class PhotoViewHolder extends RecyclerView.ViewHolder {
+        private ImageView photoImageView;
         private TextView titleTextView;
         private TextView descriptionTextView;
-        private ImageView photoImageView;
         private TextView authorTextView;
         private TextView timestampTextView;
 
         public PhotoViewHolder(@NonNull View itemView) {
             super(itemView);
+            photoImageView = itemView.findViewById(R.id.post_photo);
             titleTextView = itemView.findViewById(R.id.post_title);
             descriptionTextView = itemView.findViewById(R.id.post_description);
-            photoImageView = itemView.findViewById(R.id.post_photo);
             authorTextView = itemView.findViewById(R.id.post_author);
             timestampTextView = itemView.findViewById(R.id.post_timestamp);
         }
@@ -145,16 +145,12 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             titleTextView.setText(post.getTitle());
             descriptionTextView.setText(post.getDescription());
             authorTextView.setText(post.getAuthorId());
-            timestampTextView.setText(Utils.formatTimestamp(post.getTimestamp()));
-
-            RequestOptions options = new RequestOptions()
-                    .placeholder(R.drawable.ic_profile)
-                    .error(R.drawable.ic_topic)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL);
+            timestampTextView.setText(formatTimestamp(post.getTimestamp()));
 
             Glide.with(context)
                     .load(post.getImageUrl())
-                    .apply(options)
+                    .apply(new RequestOptions()
+                            .diskCacheStrategy(DiskCacheStrategy.RESOURCE))
                     .into(photoImageView);
         }
     }
@@ -162,7 +158,6 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public class FileViewHolder extends RecyclerView.ViewHolder {
         private TextView titleTextView;
         private TextView descriptionTextView;
-        private TextView fileUrlTextView;
         private TextView authorTextView;
         private TextView timestampTextView;
 
@@ -170,7 +165,6 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             super(itemView);
             titleTextView = itemView.findViewById(R.id.post_title);
             descriptionTextView = itemView.findViewById(R.id.post_description);
-            fileUrlTextView = itemView.findViewById(R.id.post_file_url);
             authorTextView = itemView.findViewById(R.id.post_author);
             timestampTextView = itemView.findViewById(R.id.post_timestamp);
         }
@@ -178,47 +172,41 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         public void bind(Post post) {
             titleTextView.setText(post.getTitle());
             descriptionTextView.setText(post.getDescription());
-            fileUrlTextView.setText(post.getFileUrl());
             authorTextView.setText(post.getAuthorId());
-            timestampTextView.setText(Utils.formatTimestamp(post.getTimestamp()));
+            timestampTextView.setText(formatTimestamp(post.getTimestamp()));
         }
     }
 
     public class VideoViewHolder extends RecyclerView.ViewHolder {
+        private VideoView videoView;
         private TextView titleTextView;
         private TextView descriptionTextView;
         private TextView authorTextView;
         private TextView timestampTextView;
-        private VideoView videoView;
 
         public VideoViewHolder(@NonNull View itemView) {
             super(itemView);
+            videoView = itemView.findViewById(R.id.post_video);
             titleTextView = itemView.findViewById(R.id.post_title);
             descriptionTextView = itemView.findViewById(R.id.post_description);
             authorTextView = itemView.findViewById(R.id.post_author);
             timestampTextView = itemView.findViewById(R.id.post_timestamp);
-            videoView = itemView.findViewById(R.id.post_video);
         }
 
         public void bind(Post post) {
             titleTextView.setText(post.getTitle());
             descriptionTextView.setText(post.getDescription());
             authorTextView.setText(post.getAuthorId());
-            timestampTextView.setText(Utils.formatTimestamp(post.getTimestamp()));
+            timestampTextView.setText(formatTimestamp(post.getTimestamp()));
 
             Uri videoUri = Uri.parse(post.getVideoUrl());
             videoView.setVideoURI(videoUri);
-            videoView.requestFocus();
             videoView.start();
         }
     }
 
-
-    public static class Utils {
-        public static String formatTimestamp(long timestamp) {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault());
-            return sdf.format(new Date(timestamp));
-        }
+    private String formatTimestamp(long timestamp) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault());
+        return sdf.format(new Date(timestamp));
     }
-
 }
