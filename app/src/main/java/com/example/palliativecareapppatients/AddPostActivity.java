@@ -52,10 +52,10 @@ public class AddPostActivity extends AppCompatActivity {
     private StorageReference storageRef;
     private DatabaseReference databaseRef;
     private FirebaseAuth user;
-private String postTopicId="";
+    private String postTopicId="";
     private StorageTask<UploadTask.TaskSnapshot> uploadTask;
     private ProgressDialog progressDialog;
-
+    private long timestamp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -164,12 +164,12 @@ private String postTopicId="";
         }
         startActivityForResult(intent, requestCode);
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && data != null) {
             Uri uri = data.getData();
+            if (uri != null) {
             if (requestCode == REQUEST_CODE_PICK_IMAGE) {
                 ivPostImage.setImageURI(uri);
                 postImageUri = uri;
@@ -181,6 +181,7 @@ private String postTopicId="";
             } else if (requestCode == REQUEST_CODE_PICK_FILE) {
                 postFileUri = uri;
                 Toast.makeText(this, "File selected: " + uri.getLastPathSegment(), Toast.LENGTH_SHORT).show();
+            }
             }
         }
     }
@@ -206,7 +207,7 @@ private String postTopicId="";
         } else if (postVideoUri != null) {
             uploadFile(postVideoUri, "video");
         } else {
-            uploadPost(null, null, null);
+            uploadPost("", "", "");
         }
     }
 
@@ -236,6 +237,7 @@ private String postTopicId="";
     private void uploadPost(String imageUrl, String videoUrl, String fileUrl) {
         String postId = databaseRef.push().getKey();
         String userId = user.getCurrentUser().getUid();
+        long currentTime = System.currentTimeMillis();
 
         HashMap<String, Object> postMap = new HashMap<>();
         postMap.put("postId", postId);
@@ -246,6 +248,8 @@ private String postTopicId="";
         postMap.put("videoUrl", videoUrl);
         postMap.put("fileUrl", fileUrl);
         postMap.put("topicId",postTopicId);
+        postMap.put("timestamp", currentTime);
+
 
         databaseRef.child(postId).setValue(postMap).addOnCompleteListener(task -> {
             progressDialog.dismiss();

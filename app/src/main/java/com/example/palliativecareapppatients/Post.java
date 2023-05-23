@@ -4,23 +4,23 @@ public class Post {
     private String postId;
     private String title;
     private String description;
-    private String authorId;
+    private String userId;
     private String imageUrl;
     private String videoUrl;
     private String fileUrl;
     private long timestamp;
-    private String topic;
+    private String topicId;
 
     public Post() {
         // Default constructor required for calls to DataSnapshot.getValue(Post.class)
     }
 
-    public Post(String title, String description, String authorId, String topic) {
+    public Post(String title, String description, String userId, String topicId) {
         this.title = title;
         this.description = description;
-        this.authorId = authorId;
+        this.userId = userId;
         this.timestamp = System.currentTimeMillis();
-        this.topic = topic;
+        this.topicId = topicId;
     }
 
     public String getPostId() {
@@ -47,12 +47,12 @@ public class Post {
         this.description = description;
     }
 
-    public String getAuthorId() {
-        return authorId;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setAuthorId(String authorId) {
-        this.authorId = authorId;
+    public void setUserId(String authorId) {
+        this.userId = authorId;
     }
 
     public String getImageUrl() {
@@ -87,11 +87,11 @@ public class Post {
         this.timestamp = timestamp;
     }
 
-    public String getTopic() {
-        return topic;
+    public String getTopicId() {
+        return topicId;
     }
 
-    public void setTopic(String topic) {
-        this.topic = topic;
+    public void setTopicId(String topic) {
+        this.topicId = topic;
     }
 }

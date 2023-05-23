@@ -38,12 +38,16 @@ public class topicsPostsActivity extends AppCompatActivity {
 
         // Initialize the list and adapter
         postList = new ArrayList<>();
-        adapter = new PostListAdapter(postList);
-        recyclerView.setAdapter(adapter);
+
 
         // Get the reference to the "posts" node in the Firebase Realtime Database
         postsRef = FirebaseDatabase.getInstance().getReference("posts");
 
+
+
+
+        adapter = new PostListAdapter(postList,topicsPostsActivity.this);
+        recyclerView.setAdapter(adapter);
         // Add a child event listener to fetch posts for the specified topic
         postsRef.orderByChild("topicId").equalTo(topicId).addChildEventListener(new ChildEventListener() {
             @Override

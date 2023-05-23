@@ -2,6 +2,8 @@ package com.example.palliativecareapppatients;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +17,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -22,16 +30,23 @@ import java.util.List;
 import java.util.Locale;
 
 public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    // Constants for view types
     private static final int VIEW_TYPE_TEXT = 1;
     private static final int VIEW_TYPE_PHOTO = 2;
     private static final int VIEW_TYPE_FILE = 3;
     private static final int VIEW_TYPE_VIDEO = 4;
-
+    private FirebaseAnalytics mFirebaseAnalytics;
+    private DatabaseReference databaseReference;
+    private String userName="";
     private List<Post> postList;
     private Context context;
 
-    public PostListAdapter(List<Post> postList) {
+    public PostListAdapter(List<Post> postList, Context context) {
+        databaseReference = FirebaseDatabase.getInstance().getReference();
         this.postList = postList;
+        this.context = context;
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(context);
+
     }
 
     @Override
@@ -76,6 +91,15 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position) {
         Post post = postList.get(position);
 
+        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("PostListAdapter", "Before btnEvent");
+                btnEvent("post_id", "Post Clicked", "Button");
+                Log.d("PostListAdapter", "After btnEvent");
+
+            }
+        });
         switch (viewHolder.getItemViewType()) {
             case VIEW_TYPE_TEXT:
                 TextViewHolder textViewHolder = (TextViewHolder) viewHolder;
@@ -120,9 +144,29 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         public void bind(Post post) {
             titleTextView.setText(post.getTitle());
             descriptionTextView.setText(post.getDescription());
-            authorTextView.setText(post.getAuthorId());
+
+            // استعراض قاعدة البيانات للحصول على اسم المستخدم وتعيينه في الـ userName
+            DatabaseReference userRef = databaseReference.child("users").child(post.getUserId());
+            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        String firstName = dataSnapshot.child("firstName").getValue(String.class);
+                        String familyName = dataSnapshot.child("familyName").getValue(String.class);
+                        userName = firstName + " " + familyName;
+                        authorTextView.setText(userName);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.d("PostListAdapter", "Failed to get user name: " + databaseError.getMessage());
+                }
+            });
+
             timestampTextView.setText(formatTimestamp(post.getTimestamp()));
         }
+
     }
 
     public class PhotoViewHolder extends RecyclerView.ViewHolder {
@@ -144,14 +188,34 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         public void bind(Post post) {
             titleTextView.setText(post.getTitle());
             descriptionTextView.setText(post.getDescription());
-            authorTextView.setText(post.getAuthorId());
+            // استعراض قاعدة البيانات للحصول على اسم المستخدم وتعيينه في الـ userName
+            DatabaseReference userRef = databaseReference.child("users").child(post.getUserId());
+            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        String firstName = dataSnapshot.child("firstName").getValue(String.class);
+                        String familyName = dataSnapshot.child("familyName").getValue(String.class);
+                        userName = firstName + " " + familyName;
+                        authorTextView.setText(userName);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.d("PostListAdapter", "Failed to get user name: " + databaseError.getMessage());
+                }
+            });
+
             timestampTextView.setText(formatTimestamp(post.getTimestamp()));
 
+            // Load photo using Glide
             Glide.with(context)
                     .load(post.getImageUrl())
                     .apply(new RequestOptions()
                             .diskCacheStrategy(DiskCacheStrategy.RESOURCE))
                     .into(photoImageView);
+
         }
     }
 
@@ -172,8 +236,28 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         public void bind(Post post) {
             titleTextView.setText(post.getTitle());
             descriptionTextView.setText(post.getDescription());
-            authorTextView.setText(post.getAuthorId());
+            // استعراض قاعدة البيانات للحصول على اسم المستخدم وتعيينه في الـ userName
+            DatabaseReference userRef = databaseReference.child("users").child(post.getUserId());
+            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        String firstName = dataSnapshot.child("firstName").getValue(String.class);
+                        String familyName = dataSnapshot.child("familyName").getValue(String.class);
+                        userName = firstName + " " + familyName;
+                        authorTextView.setText(userName);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.d("PostListAdapter", "Failed to get user name: " + databaseError.getMessage());
+                }
+            });
+
             timestampTextView.setText(formatTimestamp(post.getTimestamp()));
+
+            // Track file post viewed
         }
     }
 
@@ -196,12 +280,32 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         public void bind(Post post) {
             titleTextView.setText(post.getTitle());
             descriptionTextView.setText(post.getDescription());
-            authorTextView.setText(post.getAuthorId());
+            // استعراض قاعدة البيانات للحصول على اسم المستخدم وتعيينه في الـ userName
+            DatabaseReference userRef = databaseReference.child("users").child(post.getUserId());
+            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        String firstName = dataSnapshot.child("firstName").getValue(String.class);
+                        String familyName = dataSnapshot.child("familyName").getValue(String.class);
+                        userName = firstName + " " + familyName;
+                        authorTextView.setText(userName);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.d("PostListAdapter", "Failed to get user name: " + databaseError.getMessage());
+                }
+            });
+
             timestampTextView.setText(formatTimestamp(post.getTimestamp()));
 
             Uri videoUri = Uri.parse(post.getVideoUrl());
             videoView.setVideoURI(videoUri);
             videoView.start();
+
+
         }
     }
 
@@ -209,4 +313,13 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault());
         return sdf.format(new Date(timestamp));
     }
+
+    public void btnEvent(String id, String name, String contentType) {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, id);
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, name);
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, contentType);
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
 }

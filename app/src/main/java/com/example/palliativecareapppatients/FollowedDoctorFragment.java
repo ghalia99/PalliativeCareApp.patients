@@ -1,4 +1,5 @@
 package com.example.palliativecareapppatients;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -40,7 +41,7 @@ public class FollowedDoctorFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         postList = new ArrayList<>();
-        postsAdapter = new PostListAdapter(postList);
+        postsAdapter = new PostListAdapter(postList,getActivity());
         recyclerView.setAdapter(postsAdapter);
 
         databaseReference = FirebaseDatabase.getInstance().getReference();

@@ -1,297 +1,280 @@
 package com.example.palliativecareapppatients;
 
+import static android.app.Activity.RESULT_OK;
+
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.mikhaellopez.circularimageview.CircularImageView;
-import com.squareup.picasso.Picasso;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DoctorProfile extends Fragment {
-    private String reciever_id, sender_user_id, current_state;
-    private CircularImageView visit_profile;
-    private TextView visit_name, visit_status;
-    private Button request_button, decline_button;
-    private FirebaseAuth mauth;
-    DatabaseReference ref, chatrequestref, contactsRef, NotificationRef;
 
-    public DoctorProfile() {
-        // البناء الافتراضي المطلوب
-    }
+    private DatabaseReference mDatabase;
+    private FirebaseAuth mAuth;
+    private static final int PICK_IMAGE_REQUEST_CODE = 1;
+    private ImageView profileImage;
+    private TextView profileFirstName;
+    private TextView profileMiddleName;
+    private TextView profileFamilyName;
+    private TextView profileEmail;
+    private Button editProfileButton;
+    private AlertDialog alertDialog; // Declare the variable here
+    private Uri selectedImageUri;
+    private RecyclerView recyclerView;
+    private PostListAdapter postsAdapter;
+    private List<Post> postList;
+
+    // ...
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.activity_profile, container, false);
+        View view = inflater.inflate(R.layout.fragment_doctor_profile, container, false);
 
-        mauth = FirebaseAuth.getInstance();
-        sender_user_id = mauth.getCurrentUser().getUid();
+        // Initialize Firebase
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
 
-        reciever_id = getArguments().getString("visit_user_id");
+        // Initialize views
+        profileImage = view.findViewById(R.id.profileImage);
+        profileFirstName = view.findViewById(R.id.profileFirstName);
+        profileEmail = view.findViewById(R.id.profileEmail);
+        editProfileButton = view.findViewById(R.id.editProfileButton);
+        recyclerView = view.findViewById(R.id.recyclerView);
 
-        visit_profile = view.findViewById(R.id.visit_profile_image);
-        visit_name = view.findViewById(R.id.visit_user_name);
-        visit_status = view.findViewById(R.id.visit_status);
-        request_button = view.findViewById(R.id.send_message_request_button);
-        decline_button = view.findViewById(R.id.decline_message_request_button);
-        current_state = "new";
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        if (sender_user_id.equals(reciever_id))
-            request_button.setVisibility(View.INVISIBLE);
-        else
-            request_button.setVisibility(View.VISIBLE);
-
-        ref = FirebaseDatabase.getInstance().getReference();
-        chatrequestref = FirebaseDatabase.getInstance().getReference().child("Chat Requests");
-        contactsRef = FirebaseDatabase.getInstance().getReference().child("Contacts");
-        NotificationRef = FirebaseDatabase.getInstance().getReference().child("Notifications");
-
-        ref.child("Users").child(reciever_id).addValueEventListener(new ValueEventListener() {
+        postList = new ArrayList<>();
+        postsAdapter = new PostListAdapter(postList,getActivity());
+        recyclerView.setAdapter(postsAdapter);
+        // Set click listener for edit profile button
+        editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists() && dataSnapshot.hasChild("name") && dataSnapshot.hasChild("image")) {
-                    String retrieveusername = dataSnapshot.child("name").getValue().toString();
-                    String retrieveuserstatus = dataSnapshot.child("status").getValue().toString();
-                    String retrieveuserimage = dataSnapshot.child("image").getValue().toString();
-
-                    visit_name.setText(retrieveusername);
-                    visit_status.setText(retrieveuserstatus);
-                    Picasso.get().load(retrieveuserimage).into(visit_profile);
-
-                    ManageChatRequest();
-                } else if (dataSnapshot.exists() && dataSnapshot.hasChild("name")) {
-                    String retrieveusername = dataSnapshot.child("name").getValue().toString();
-                    String retrieveuserstatus = dataSnapshot.child("status").getValue().toString();
-
-                    visit_name.setText(retrieveusername);
-                    visit_status.setText(retrieveuserstatus);
-
-                    ManageChatRequest();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
+            public void onClick(View v) {
+                showEditProfileDialog();
             }
         });
+
+        // Load user data from the database
+        loadUserData();
 
         return view;
     }
 
-    private void ManageChatRequest() {
-        chatrequestref.child(sender_user_id).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.hasChild(reciever_id)) {
-                    String reuest_type = dataSnapshot.child(reciever_id).child("request_type").getValue().toString();
-                    if (reuest_type.equals("sent")) {
-                        current_state = "request_sent";
-                        request_button.setText("  Cancel Chat Request  ");
-                    } else if (reuest_type.equals("received")) {
-                        current_state = "request_received";
-                        request_button.setText("  Accept Chat Request  ");
+    private void loadUserData() {
+        // Get the current user ID
+        String userId = mAuth.getCurrentUser().getUid();
 
-                        decline_button.setVisibility(View.VISIBLE);
-                        decline_button.setEnabled(true);
-                        decline_button.setOnClickListener(new View.OnClickListener() {
+        // Get the user data from the database
+        mDatabase.child("users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // Get user data
+                    String firstName = dataSnapshot.child("firstName").getValue(String.class);
+                    String middleName = dataSnapshot.child("middleName").getValue(String.class);
+                    String familyName = dataSnapshot.child("familyName").getValue(String.class);
+                    String email = dataSnapshot.child("email").getValue(String.class);
+                    String profilePhotoUrl = dataSnapshot.child("profilePhotoUrl").getValue(String.class);
+
+                    // Update the UI with user data
+                    profileFirstName.setText(firstName+" "+middleName+" "+familyName);
+
+                    profileEmail.setText(email);
+
+                    // Load profile photo using an image loading library like Glide or Picasso
+                    Glide.with(requireContext())
+                            .load(profilePhotoUrl)
+                            .placeholder(R.drawable.profile_image)
+                            .into(profileImage);
+                    Post post = dataSnapshot.getValue(Post.class);
+                    if (post != null) {
+                        if (dataSnapshot.child(userId).getValue(String.class)!=null) {
+                            postList.add(post);
+                            Log.d("postList", "Post added: " + post.getTitle());
+                        }
+                    }
+
+                    postsAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Handle database error
+                Log.e("TAG", "Failed to load user data.", databaseError.toException());
+            }
+        });
+    }
+    private void showEditProfileDialog() {
+        // Create a dialog
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(requireContext());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_edit_profile, null);
+        dialogBuilder.setView(dialogView);
+
+        // Initialize dialog views
+        ImageView dialogProfileImage = dialogView.findViewById(R.id.dialogProfileImage);
+        EditText dialogFirstName = dialogView.findViewById(R.id.dialogFirstName);
+        EditText dialogMiddleName = dialogView.findViewById(R.id.dialogMiddleName);
+        EditText dialogFamilyName = dialogView.findViewById(R.id.dialogFamilyName);
+        EditText dialogEmail = dialogView.findViewById(R.id.dialogEmail);
+        Button saveButton = dialogView.findViewById(R.id.saveButton);
+        String[] nameParts = profileFirstName.getText().toString().split(" ");
+
+        String firstName = "";
+        String middleName = "";
+        String familyName = "";
+
+        if (nameParts.length > 0) {
+            firstName = nameParts[0];
+            dialogFirstName.setText(firstName);
+
+        }
+
+        if (nameParts.length > 1) {
+            middleName = nameParts[1];
+            dialogMiddleName.setText(middleName);
+
+        }
+
+        if (nameParts.length > 2) {
+            familyName = nameParts[2];
+            dialogFamilyName.setText(familyName);
+
+        }
+        String currentEmail = profileEmail.getText().toString();
+        dialogEmail.setText(currentEmail);
+
+        // Set click listener for profile image to open image picker
+        dialogProfileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openImagePicker();
+            }
+        });
+
+        // Set click listener for save button to update user data
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String newFirstName = dialogFirstName.getText().toString();
+                String newMiddleName = dialogMiddleName.getText().toString();
+                String newFamilyName = dialogFamilyName.getText().toString();
+                String newEmail = dialogEmail.getText().toString();
+
+                // Update user data in the database
+                updateUserData(newFirstName, newMiddleName, newFamilyName, newEmail);
+
+                // Update the profile image if a new image is selected
+                if (selectedImageUri != null) {
+                    uploadProfileImage(selectedImageUri);
+                }
+
+                // Dismiss the dialog
+                alertDialog.dismiss();
+            }
+        });
+
+        // Show the dialog
+        alertDialog = dialogBuilder.create();
+        alertDialog.show();
+    }
+
+    private void updateUserData(String firstName, String middleName, String familyName, String email) {
+        // Get the current user ID
+        String userId = mAuth.getCurrentUser().getUid();
+
+        // Update user data in the database
+        mDatabase.child("users").child(userId).child("firstName").setValue(firstName);
+        mDatabase.child("users").child(userId).child("middleName").setValue(middleName);
+        mDatabase.child("users").child(userId).child("familyName").setValue(familyName);
+        mDatabase.child("users").child(userId).child("email").setValue(email);
+
+        // Update the UI with the new user data
+        profileFirstName.setText(firstName+" "+middleName+" "+familyName);
+
+        profileEmail.setText(email);
+    }
+
+    private void openImagePicker() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST_CODE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+            // Get the image URI from the intent data
+            selectedImageUri = data.getData();
+
+            // Load the selected image into the profile image view
+            Glide.with(requireContext())
+                    .load(selectedImageUri)
+                    .placeholder(R.drawable.profile_image)
+                    .into(profileImage);
+        }
+    }
+    private void uploadProfileImage(Uri imageUri) {
+        // Get the current user ID
+        String userId = mAuth.getCurrentUser().getUid();
+
+        // Create a storage reference for the user's profile image
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("Image Files").child(userId + ".jpg");
+
+        // Upload the image to Firebase Storage
+        storageRef.putFile(imageUri)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        // Get the download URL of the uploaded image
+                        storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
-                            public void onClick(View v) {
-                                CancelChatRequest();
+                            public void onSuccess(Uri downloadUri) {
+                                // Update the user's profile image URL in the database
+                                mDatabase.child("users").child(userId).child("profilePhotoUrl").setValue(downloadUri.toString());
                             }
                         });
                     }
-                } else {
-                    contactsRef.child(sender_user_id).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.hasChild(reciever_id)) {
-                                current_state = "friends";
-                                request_button.setText(" Remove this contact ");
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-        request_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                request_button.setEnabled(false);
-
-                if (current_state.equals("new")) {
-                    SendChatRequest();
-                }
-                if (current_state.equals("request_sent")) {
-                    CancelChatRequest();
-                }
-                if (current_state.equals("request_received")) {
-                    AcceptChatRequest();
-                }
-                if (current_state.equals("friends")) {
-                    RemoveSpecificChatRequest();
-                }
-            }
-        });
-    }
-
-    private void RemoveSpecificChatRequest() {
-        contactsRef.child(sender_user_id).child(reciever_id)
-                .removeValue()
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                })
+                .addOnFailureListener(new OnFailureListener() {
                     @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            contactsRef.child(reciever_id).child(sender_user_id)
-                                    .removeValue()
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if (task.isSuccessful()) {
-                                                request_button.setEnabled(true);
-                                                request_button.setText("  Send Request  ");
-                                                current_state = "new";
-
-                                                decline_button.setVisibility(View.INVISIBLE);
-                                                decline_button.setEnabled(false);
-                                            }
-                                        }
-                                    });
-                        }
-                    }
-                });
-    }
-
-    private void AcceptChatRequest() {
-        contactsRef.child(sender_user_id).child(reciever_id)
-                .child("Contacts").setValue("Saved")
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            contactsRef.child(reciever_id).child(sender_user_id)
-                                    .child("Contacts").setValue("Saved")
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if (task.isSuccessful()) {
-                                                chatrequestref.child(sender_user_id).child(reciever_id)
-                                                        .removeValue()
-                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                            @Override
-                                                            public void onComplete(@NonNull Task<Void> task) {
-                                                                if (task.isSuccessful()) {
-                                                                    chatrequestref.child(reciever_id).child(sender_user_id)
-                                                                            .removeValue()
-                                                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                @Override
-                                                                                public void onComplete(@NonNull Task<Void> task) {
-                                                                                    request_button.setEnabled(true);
-                                                                                    current_state = "friends";
-                                                                                    request_button.setText(" Remove this contact ");
-
-                                                                                    decline_button.setVisibility(View.INVISIBLE);
-                                                                                    decline_button.setEnabled(false);
-                                                                                }
-                                                                            });
-                                                                }
-                                                            }
-                                                        });
-                                            }
-                                        }
-                                    });
-                        }
-                    }
-                });
-    }
-
-    private void CancelChatRequest() {
-
-        chatrequestref.child(sender_user_id).child(reciever_id)
-                .removeValue()
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            chatrequestref.child(reciever_id).child(sender_user_id)
-                                    .removeValue()
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if (task.isSuccessful()) {
-                                                request_button.setEnabled(true);
-                                                current_state = "new";
-                                                request_button.setText("  Send Request  ");
-
-                                                decline_button.setVisibility(View.INVISIBLE);
-                                                decline_button.setEnabled(false);
-                                            }
-                                        }
-                                    });
-                        }
-                    }
-                });
-    }
-
-    private void SendChatRequest() {
-        chatrequestref.child(sender_user_id).child(reciever_id)
-                .child("request_type").setValue("sent")
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            chatrequestref.child(reciever_id).child(sender_user_id)
-                                    .child("request_type").setValue("received")
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if (task.isSuccessful()) {
-                                                HashMap<String, String> chatNotificationMap = new HashMap<>();
-                                                chatNotificationMap.put("from", sender_user_id);
-                                                chatNotificationMap.put("type", "request");
-
-                                                NotificationRef.child(reciever_id).push()
-                                                        .setValue(chatNotificationMap)
-                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                            @Override
-                                                            public void onComplete(@NonNull Task<Void> task) {
-                                                                if (task.isSuccessful()) {
-                                                                    request_button.setEnabled(true);
-                                                                    current_state = "request_sent";
-                                                                    request_button.setText("  Cancel Chat Request  ");
-                                                                }
-                                                            }
-                                                        });
-                                            }
-                                        }
-                                    });
-                        }
+                    public void onFailure(@NonNull Exception e) {
+                        // Handle the upload failure
+                        Toast.makeText(requireContext(), "Failed to upload profile image", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

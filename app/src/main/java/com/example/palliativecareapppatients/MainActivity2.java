@@ -56,7 +56,7 @@ public class MainActivity2 extends AppCompatActivity {
                         setFragment(fragment);
                         return true;
                     case R.id.navigation_profile:
-                        fragment = new PostsFragment();
+                        fragment = new DoctorProfile();
                         setFragment(fragment);
                         return true;
                     default:

@@ -5,7 +5,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,7 +27,6 @@ public class PostsFragment extends Fragment {
     private RecyclerView recyclerView;
     private PostListAdapter postsAdapter;
     private List<Post> postList;
-                 private TextView t;
     private DatabaseReference databaseReference;
 
     @Nullable
@@ -42,7 +40,7 @@ public class PostsFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         postList = new ArrayList<>();
-        postsAdapter = new PostListAdapter( postList);
+        postsAdapter = new PostListAdapter( postList,getActivity());
         recyclerView.setAdapter(postsAdapter);
 
         databaseReference = FirebaseDatabase.getInstance().getReference();
@@ -73,7 +71,7 @@ public class PostsFragment extends Fragment {
                                 Post post = postSnapshot.getValue(Post.class);
                                 if (post != null) {
                                     Log.d("postList", "Post retrieved: " + post.getTitle());
-                                    Log.d("postList", "Topic ID: " + post.getTopic());
+                                    Log.d("postList", "Topic ID: " + post.getTopicId());
                                     Log.d("postList", "Following topics: " + followingTopics.toString());
 
                                     if (followingTopics.contains(postSnapshot.child("topicId").getValue(String.class))) {
