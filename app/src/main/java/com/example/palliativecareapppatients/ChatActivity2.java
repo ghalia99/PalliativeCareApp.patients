@@ -73,7 +73,7 @@ public class ChatActivity2 extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
+        setContentView(R.layout.activity_chat2);
         loadingBar=new ProgressDialog(this);
         mauth=FirebaseAuth.getInstance();
         messageSenderId=mauth.getCurrentUser().getUid();
@@ -86,6 +86,7 @@ public class ChatActivity2 extends AppCompatActivity {
 
         setSupportActionBar(chattoolbar);
         ActionBar actionBar=getSupportActionBar();
+        if (actionBar != null) {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);
 
@@ -96,6 +97,14 @@ public class ChatActivity2 extends AppCompatActivity {
         username=findViewById(R.id.custom_profile_name);
         userlastseen=findViewById(R.id.custom_user_last_seen);
         userprofile=findViewById(R.id.custom_profile_image);
+        username.setText(getMessageRecievername);
+            Picasso.get().load(messagereceiverimage).placeholder(R.drawable.profile_image).into(userprofile);
+            username.setText(getMessageRecievername);
+            Picasso.get().load(messagereceiverimage).placeholder(R.drawable.profile_image).into(userprofile);
+            Displaylastseen();
+        }
+
+
         sendMessageButton=findViewById(R.id.send_message_btn);
         sendFileButton=findViewById(R.id.send_files_btn);
 
@@ -116,9 +125,6 @@ public class ChatActivity2 extends AppCompatActivity {
         savecurrentTime=currentTime.format(calendar.getTime());
 
 
-        username.setText(getMessageRecievername);
-        Picasso.get().load(messagereceiverimage).placeholder(R.drawable.profile_image).into(userprofile);
-        Displaylastseen();
         sendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -341,7 +347,7 @@ public class ChatActivity2 extends AppCompatActivity {
 
     public void Displaylastseen()
     {
-        RootRef.child("Users").child(messageRecieverId).addValueEventListener(new ValueEventListener() {
+        RootRef.child("users").child(messageRecieverId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(dataSnapshot.child("userState").hasChild("state"))

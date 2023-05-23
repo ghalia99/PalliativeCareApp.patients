@@ -18,43 +18,46 @@
 
     <TextView
         android:id="@+id/visit_user_name"
-        android:text="User Name:"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:textAllCaps="false"
-        android:textSize="25dp"
-        android:textColor="@android:color/holo_red_dark"
-        android:textStyle="bold"
-        android:layout_below="@id/visit_profile_image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal" />
+        android:layout_below="@id/visit_profile_image"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:gravity="center_horizontal"
+        android:text="الاسم :"
+        android:textAllCaps="false"
+        android:textColor="@android:color/holo_red_dark"
+        android:textSize="25dp"
+        android:textStyle="bold" />
+
     <TextView
         android:id="@+id/visit_status"
-        android:text="Status:"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:textAllCaps="false"
-        android:textSize="23dp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
-        android:layout_below="@id/visit_user_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal" />
+        android:layout_below="@id/visit_user_name"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:gravity="center_horizontal"
+        android:text="الحالة"
+        android:textAllCaps="false"
+        android:textColor="@android:color/black"
+        android:textSize="23dp"
+        android:textStyle="bold" />
+
     <Button
         android:id="@+id/send_message_request_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_below="@id/visit_status"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="15dp"
-        android:textStyle="bold"
-        android:textSize="20dp"
-        android:textAllCaps="false"
         android:background="@drawable/buttons"
-        android:textColor="@android:color/holo_orange_dark"
-        android:text="  Send Request  "
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:text="ارسال طلب مراسلة"
+        android:textAllCaps="false"
+        android:textColor="@color/black"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        app:backgroundTint="@color/colorPrimaryDark" />
 
     <Button
         android:id="@+id/decline_message_request_button"

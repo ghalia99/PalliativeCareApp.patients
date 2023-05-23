@@ -75,9 +75,9 @@ public class TopicListAdapter extends RecyclerView.Adapter<TopicListAdapter.Topi
 
             // Set the button text based on the follow state
             if (topic.getIs_followed()) {
-                mFollowButton.setText("Unfollow");
+                mFollowButton.setText("الغاء متابعة");
             } else {
-                mFollowButton.setText("Follow");
+                mFollowButton.setText("متابعة");
             }
         }
 

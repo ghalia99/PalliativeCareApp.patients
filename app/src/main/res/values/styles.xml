@@ -6,19 +6,11 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <!-- Customize the action bar -->
-        <item name="actionBarStyle">@style/AppTheme.ActionBar</item>
         <!-- Customize the navigation bar -->
         <item name="navigationViewStyle">@style/AppTheme.NavigationView</item>
-    </style>
-
-    <style name="AppTheme.ActionBar" parent="Widget.AppCompat.ActionBar">
-        <!-- Customize the background color of the action bar -->
-        <item name="background">@color/colorPrimary</item>
-        <!-- Customize the color of the title text -->
-        <item name="titleTextColor">@color/white</item>
-        <!-- Customize the color of the navigation icon -->
-        <item name="colorControlNormal">@color/white</item>
+        <!-- Disable the default ActionBar -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
     <style name="AppTheme.NavigationView" parent="Widget.Design.NavigationView">

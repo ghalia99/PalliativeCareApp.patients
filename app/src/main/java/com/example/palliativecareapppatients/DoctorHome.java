@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -28,25 +27,15 @@ public class DoctorHome extends Fragment {
 
         viewPager = root.findViewById(R.id.view_pager);
         tabLayout = root.findViewById(R.id.tab_layout);
+        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getActivity());
 
-        FragmentManager fragmentManager = getChildFragmentManager();
-        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter();
-        viewPagerAdapter.addFragment( R.layout.fragment_followed_doctor, "الاطباء");
-        viewPagerAdapter.addFragment(R.layout.fragment_posts, "المواضيع");
-
+        // Set the ViewPagerAdapter as the adapter for the ViewPager2
         viewPager.setAdapter(viewPagerAdapter);
 
-        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
-            switch (position) {
-                case 0:
-                    tab.setText("الاطباء");
-                    break;
-                case 1:
-                    tab.setText("المواضيع");
-                    break;
-            }
-        }).attach();
-
+        // Set up the TabLayout with the ViewPager2
+        new TabLayoutMediator(tabLayout, viewPager,
+                (tab, position) -> tab.setText(viewPagerAdapter.getPageTitle(position)))
+                .attach();
         FloatingActionButton addButton = root.findViewById(R.id.add_post_button);
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override

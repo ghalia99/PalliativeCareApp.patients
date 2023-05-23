@@ -3,16 +3,16 @@
     <item
         android:id="@+id/navigation_Doctor_topic"
         android:icon="@drawable/ic_topic"
-        android:title="Topic" />
+        android:title="المواضيع" />
 
 
     <item
         android:id="@+id/navigation_home"
         android:icon="@drawable/ic_home"
-        android:title="Home" />
+        android:title="الصفحة الرئيسة" />
 
     <item
         android:id="@+id/navigation_profile"
         android:icon="@drawable/ic_profile"
-        android:title="Profile" />
+        android:title="الصفحة الشخصية" />
 </menu>

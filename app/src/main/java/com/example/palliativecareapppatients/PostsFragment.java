@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,125 +14,92 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PostsFragment extends Fragment {
-
     private RecyclerView recyclerView;
-    private PostListAdapter adapter;
+    private PostListAdapter postsAdapter;
     private List<Post> postList;
+                 private TextView t;
+    private DatabaseReference databaseReference;
 
-    private DatabaseReference postsRef;
-    private ChildEventListener postsListener;
-
-    private DatabaseReference topicsRef;
-    private ChildEventListener topicsListener;
-    private List<String> followedTopicIds = new ArrayList<>();
-
-    private TextView title;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_posts, container, false);
 
         recyclerView = view.findViewById(R.id.recyclerView);
+
+        recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
         postList = new ArrayList<>();
-        adapter = new PostListAdapter(postList);
-        recyclerView.setAdapter(adapter);
-        title=view.findViewById(R.id.post_title);
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        postsRef = database.getReference("posts");
-        topicsRef = database.getReference("topics");
+        postsAdapter = new PostListAdapter( postList);
+        recyclerView.setAdapter(postsAdapter);
+
+        databaseReference = FirebaseDatabase.getInstance().getReference();
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
 
 
-        String currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        loadFollowedPosts(currentUserID);
-        Toast.makeText(getActivity(), currentUserID, Toast.LENGTH_SHORT).show();
-        return view;
-    }
-    private void loadFollowedPosts(String userID) {
-        Log.d("Load Followed Posts", "User ID: " + userID);
+        String userId = currentUser.getUid();
 
-        FirebaseDatabase.getInstance().getReference("users")
-                .child(userID)
-                .child("followingTopic")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        for (DataSnapshot topicSnapshot : dataSnapshot.getChildren()) {
-                            String topicId = topicSnapshot.getKey();
-                            followedTopicIds.add(topicId);
-                        }
-                        Log.d("Load Followed Posts", "Followed Topic IDs: " + followedTopicIds.toString());
-
-                        fetchPostsForFollowedTopics();
-                        Toast.makeText(getContext(), "Loading posts...", Toast.LENGTH_SHORT).show();
-
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Log.e("Load Followed Posts", "Failed to load followed topics: " + databaseError.getMessage());
-                    }
-                });
-    }
-    private void fetchPostsForFollowedTopics() {
-        String currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(currentUserID).child("followingTopic");
-        DatabaseReference postsRef = FirebaseDatabase.getInstance().getReference("posts");
-
-        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseReference followingTopicsRef = databaseReference.child("users").child(userId).child("followingTopic");
+        followingTopicsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                List<String> followedTopicIds = new ArrayList<>();
+                List<String> followingTopics = new ArrayList<>();
                 for (DataSnapshot topicSnapshot : dataSnapshot.getChildren()) {
-                    if (topicSnapshot.getValue(Boolean.class)) {
-                        followedTopicIds.add(topicSnapshot.getKey());
-                    }
+                    String topicId = topicSnapshot.getKey();
+                    followingTopics.add(topicId);
+                    Log.d("followingTopics",followingTopics.size()+" ");
                 }
 
-                Query query = postsRef.orderByChild("topicId");
-                query.addValueEventListener(new ValueEventListener() {
+                // قم بتحميل جميع البوستات من قاعدة البيانات
+                DatabaseReference postsRef = databaseReference.child("posts");
+                postsRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        List<Post> filteredPosts = new ArrayList<>();
-                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                            Post post = postSnapshot.getValue(Post.class);
-                            if (post != null && followedTopicIds.contains(post.getTopic())) {
-                                filteredPosts.add(post);
+                        postList.clear();
+                            for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                                Post post = postSnapshot.getValue(Post.class);
+                                if (post != null) {
+                                    Log.d("postList", "Post retrieved: " + post.getTitle());
+                                    Log.d("postList", "Topic ID: " + post.getTopic());
+                                    Log.d("postList", "Following topics: " + followingTopics.toString());
+
+                                    if (followingTopics.contains(postSnapshot.child("topicId").getValue(String.class))) {
+                                        postList.add(post);
+                                        Log.d("postList", "Post added: " + post.getTitle());
+                                    }
+                                }
                             }
+                            Log.d("postList", "Post list size: " + postList.size());
+
+                            postsAdapter.notifyDataSetChanged();
                         }
-
-                        Log.d("Fetch Posts", "Filtered Posts: " + filteredPosts.size());
-
-                        // Display the filtered posts (e.g., set them in RecyclerView adapter)
-
-
-                    }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Log.e("Fetch Posts", "Failed to fetch posts: " + databaseError.getMessage());
+                        Log.d("postList", postList.size() + "....");
                     }
                 });
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e("Fetch Posts", "Failed to load followed topics: " + databaseError.getMessage());
+                // حدث خطأ في قراءة البيانات
             }
         });
+
+        return view;
     }
-
-
 }

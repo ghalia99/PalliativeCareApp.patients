@@ -1,57 +1,41 @@
 package com.example.palliativecareapppatients;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import java.util.ArrayList;
-import java.util.List;
+public class ViewPagerAdapter extends FragmentStateAdapter implements Adapter {
 
-public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.ViewHolder> {
-
-    private List<Integer> fragmentLayouts;
-    private List<String> fragmentTitles;
-
-    public ViewPagerAdapter() {
-        fragmentLayouts = new ArrayList<>();
-        fragmentTitles = new ArrayList<>();
-    }
-
-    public void addFragment(int fragmentLayout, String fragmentTitle) {
-        fragmentLayouts.add(fragmentLayout);
-        fragmentTitles.add(fragmentTitle);
+    public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
+        super(fragmentActivity);
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(viewType, parent, false);
-        return new ViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        // bind data to views
+    public Fragment createFragment(int position) {
+        switch (position) {
+            case 0:
+                return new FollowedDoctorFragment();
+            case 1:
+                return new PostsFragment();
+        }
+        return null;
     }
 
     @Override
     public int getItemCount() {
-        return fragmentLayouts.size();
+        return 2;
     }
 
     @Override
-    public int getItemViewType(int position) {
-        return fragmentLayouts.get(position);
-    }
-
-    public class ViewHolder extends RecyclerView.ViewHolder {
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            // find views by ID
+    public CharSequence getPageTitle(int position) {
+        switch (position) {
+            case 0:
+                return "الأطباء";
+            case 1:
+                return "المواضيع";
         }
+        return null;
     }
 }
+

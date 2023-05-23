@@ -2,7 +2,6 @@ package com.example.palliativecareapppatients;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,15 +23,11 @@ import com.google.firebase.database.ValueEventListener;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.squareup.picasso.Picasso;
 
-
-/**
- * A simple {@link Fragment} subclass.
- */
 public class ChatsFragment extends Fragment {
 
     private View view;
     private RecyclerView recyclerView;
-    private DatabaseReference chatRef,userRef;
+    private DatabaseReference chatRef, userRef;
     private FirebaseAuth mAuth;
     private String userID;
 
@@ -40,18 +35,16 @@ public class ChatsFragment extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        view=inflater.inflate(R.layout.fragment_chats, container, false);
-        mAuth=FirebaseAuth.getInstance();
-        userID=mAuth.getCurrentUser().getUid();
-        chatRef= FirebaseDatabase.getInstance().getReference().child("Contacts").child(userID);
-        userRef=FirebaseDatabase.getInstance().getReference().child("users");
+        view = inflater.inflate(R.layout.fragment_chats, container, false);
+        mAuth = FirebaseAuth.getInstance();
+        userID = mAuth.getCurrentUser().getUid();
+        chatRef = FirebaseDatabase.getInstance().getReference().child("Contacts").child(userID);
+        userRef = FirebaseDatabase.getInstance().getReference().child("users");
 
-        recyclerView=view.findViewById(R.id.chats_list);
+        recyclerView = view.findViewById(R.id.chats_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         return view;
     }
@@ -59,59 +52,54 @@ public class ChatsFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        FirebaseRecyclerOptions<ContactsContract.Contacts> options=new FirebaseRecyclerOptions.Builder<ContactsContract.Contacts>()
-                .setQuery(chatRef, ContactsContract.Contacts.class).build();
+        FirebaseRecyclerOptions<Contacts> options = new FirebaseRecyclerOptions.Builder<Contacts>()
+                .setQuery(chatRef, Contacts.class)
+                .build();
 
-        FirebaseRecyclerAdapter<ContactsContract.Contacts,ChatViewHolder> adapter=new FirebaseRecyclerAdapter<ContactsContract.Contacts, ChatViewHolder>(options) {
+        FirebaseRecyclerAdapter<Contacts, ChatViewHolder> adapter = new FirebaseRecyclerAdapter<Contacts, ChatViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull final ChatViewHolder holder, int position, @NonNull ContactsContract.Contacts model) {
-                final String userid=getRef(position).getKey();
+            protected void onBindViewHolder(@NonNull final ChatViewHolder holder, int position, @NonNull Contacts model) {
+                final String[] username = {""};
+                final String userid = getRef(position).getKey();
                 final String[] image = {"default_image"};
                 userRef.child(userid).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.exists())
-                        {
-                            if(dataSnapshot.hasChild("image"))
-                            {
-                                image[0] =dataSnapshot.child("image").getValue().toString();
+                        if (dataSnapshot.exists()) {
+                            if (dataSnapshot.hasChild("profilePhotoUrl")) {
+                                image[0] = dataSnapshot.child("profilePhotoUrl").getValue().toString();
                                 Picasso.get().load(image[0]).placeholder(R.drawable.profile_image).into(holder.profile_image);
                             }
-                            final String name=dataSnapshot.child("name").getValue().toString();
-                            final String status=dataSnapshot.child("status").getValue().toString();
 
-                            holder.username.setText(name);
-                            holder.userstatus.setText("Last seen: "+"\n"+"Date "+" Time");
-
-                            if(dataSnapshot.child("userState").hasChild("state"))
-                            {
-                                String state=dataSnapshot.child("userState").child("state").getValue().toString();
-                                String date=dataSnapshot.child("userState").child("date").getValue().toString();
-                                String time=dataSnapshot.child("userState").child("time").getValue().toString();
-
-                                if(state.equals("online"))
-                                {
-                                    holder.userstatus.setText("online");
-                                }
-                                else if(state.equals("offline"))
-                                {
-                                    holder.userstatus.setText("Last seen: "+"\n"+date+" "+time);
-                                }
+                            if (dataSnapshot.hasChild("firstName") && dataSnapshot.hasChild("middleName") && dataSnapshot.hasChild("familyName")) {
+                                username[0] = dataSnapshot.child("firstName").getValue(String.class) +
+                                        dataSnapshot.child("middleName").getValue(String.class) +
+                                        dataSnapshot.child("familyName").getValue(String.class);
                             }
-                            else
-                            {
+
+                            holder.username.setText(username[0]);
+                            holder.userstatus.setText("Last seen:\nDate Time");
+
+                            if (dataSnapshot.child("userState").hasChild("state")) {
+                                String state = dataSnapshot.child("userState").child("state").getValue().toString();
+                                String date = dataSnapshot.child("userState").child("date").getValue().toString();
+                                String time = dataSnapshot.child("userState").child("time").getValue().toString();
+
+                                if (state.equals("online")) {
+                                    holder.userstatus.setText("online");
+                                } else if (state.equals("offline")) {
+                                    holder.userstatus.setText("Last seen:\n" + date + " " + time);
+                                }
+                            } else {
                                 holder.userstatus.setText("offline");
                             }
-
-
-
 
                             holder.itemView.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    Intent chatIntent=new Intent(getContext(),ChatActivity.class);
-                                    chatIntent.putExtra("visit_user_id",userid);
-                                    chatIntent.putExtra("visit_user_name",name);
+                                    Intent chatIntent = new Intent(getContext(), ChatActivity2.class);
+                                    chatIntent.putExtra("visit_user_id", userid);
+                                    chatIntent.putExtra("visit_user_name", username[0]);
                                     chatIntent.putExtra("visit_image", image[0]);
                                     startActivity(chatIntent);
                                 }
@@ -129,9 +117,8 @@ public class ChatsFragment extends Fragment {
             @NonNull
             @Override
             public ChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view=LayoutInflater.from(getContext()).inflate(R.layout.users_display_layout,parent,false);
-                ChatViewHolder chatViewHolder=new ChatViewHolder(view);
-                return chatViewHolder;
+                View view = LayoutInflater.from(getContext()).inflate(R.layout.users_display_layout, parent, false);
+                return new ChatViewHolder(view);
             }
         };
 
@@ -142,13 +129,13 @@ public class ChatsFragment extends Fragment {
     public static class ChatViewHolder extends RecyclerView.ViewHolder {
 
         CircularImageView profile_image;
-        TextView username,userstatus;
+        TextView username, userstatus;
+
         public ChatViewHolder(@NonNull View itemView) {
             super(itemView);
-
-            profile_image=itemView.findViewById(R.id.users_profile_image);
-            username=itemView.findViewById(R.id.users_profile_name);
-            userstatus=itemView.findViewById(R.id.users_status);
+            profile_image = itemView.findViewById(R.id.users_profile_image);
+            username = itemView.findViewById(R.id.users_profile_name);
+            userstatus = itemView.findViewById(R.id.users_status);
         }
     }
 }

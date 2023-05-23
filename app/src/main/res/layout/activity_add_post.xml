@@ -35,18 +35,18 @@
 
     <Spinner
         android:id="@+id/sp_topic"
-        android:layout_width="312dp"
-        android:layout_height="42dp"
+        android:layout_width="440dp"
+        android:layout_height="44dp"
         android:layout_below="@+id/et_post_description"
         android:layout_alignEnd="@+id/et_post_description"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="54dp"
+        android:layout_marginStart="0dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="13dp" />
 
     <LinearLayout
         android:id="@+id/ll_image_buttons"
-        android:layout_width="364dp"
+        android:layout_width="430dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/et_post_description"
         android:layout_marginTop="60dp"
@@ -57,7 +57,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Add Image"
+            android:text="صورة"
             android:textAllCaps="false" />
 
         <Button
@@ -65,7 +65,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Add Video"
+            android:text="فيديو"
             android:textAllCaps="false" />
 
         <Button
@@ -73,7 +73,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Add File"
+            android:text="ملف"
             android:textAllCaps="false" />
 
     </LinearLayout>
@@ -81,15 +81,16 @@
     <ImageView
         android:id="@+id/iv_post_image"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="80dp"
         android:layout_below="@+id/ll_image_buttons"
         android:layout_marginTop="16dp"
         android:scaleType="centerCrop"
         android:visibility="gone" />
+
     <ImageView
         android:id="@+id/iv_post_video"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:layout_below="@+id/ll_image_buttons"
         android:layout_marginTop="16dp"
         android:scaleType="centerCrop"
@@ -106,8 +107,12 @@
         android:id="@+id/btn_add_post"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/iv_post_image"
-        android:layout_marginTop="16dp"
+        android:layout_below="@+id/ll_image_buttons"
+        android:layout_alignStart="@+id/sp_topic"
+        android:layout_alignEnd="@+id/sp_topic"
+        android:layout_marginStart="-58dp"
+        android:layout_marginTop="367dp"
+        android:layout_marginEnd="-4dp"
         android:text="Add Post"
         android:textAllCaps="false" />
 

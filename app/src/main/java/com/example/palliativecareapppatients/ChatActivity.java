@@ -93,13 +93,13 @@ public class ChatActivity extends AppCompatActivity {
         databaseReference.child("users").child(currentUserID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.child("name").exists())
-                {
-                    //Toast.makeText(MainActivity.this,"Welcome",Toast.LENGTH_SHORT).show();
+                if (dataSnapshot.hasChild("firstName") && dataSnapshot.hasChild("middleName") && dataSnapshot.hasChild("familyName")) {
+
+                    Toast.makeText(ChatActivity.this,"Welcome",Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
-              //      sendUserToSettingsActivity();
+              sendUserToSettingsActivity();
                 }
             }
 

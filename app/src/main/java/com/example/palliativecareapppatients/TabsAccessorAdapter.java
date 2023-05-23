@@ -36,10 +36,10 @@ public class TabsAccessorAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position)
         {
-            case 0:return "Chats";
+            case 0:return "المحادثات";
             //case 1:return "Groups";
-            case 1:return "Contacts";
-            case 2:return "Requests";
+            case 1:return "جهات الاتصال";
+            case 2:return "طلبات المراسلة";
         }
         return null;
     }

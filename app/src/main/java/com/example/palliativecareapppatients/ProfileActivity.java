@@ -57,6 +57,7 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
+
                     if (dataSnapshot.hasChild("firstName") && dataSnapshot.hasChild("middleName") && dataSnapshot.hasChild("familyName")) {
                         String retrieveusername = dataSnapshot.child("firstName").getValue(String.class) +
                                 dataSnapshot.child("middleName").getValue(String.class) +

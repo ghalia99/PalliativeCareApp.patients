@@ -12,4 +12,26 @@
         android:icon="@drawable/ic_chat"
         android:title="Chat"
         app:showAsAction="ifRoom" />
+    <item
+        android:title=""
+        android:id="@+id/main_submenu"
+        app:showAsAction="never"/>
+
+         <item
+        android:title="العثور على اصدقاء"
+        android:id="@+id/main_find_friends_menu"
+        app:showAsAction="never"
+        />
+            <item
+                android:title="الاعدادات"
+        android:id="@+id/main_settings_menu"
+        app:showAsAction="never"
+       />
+          <item
+        android:title="تسجيل الخروج"
+        android:id="@+id/main_logout_menu"
+        app:showAsAction="never"
+        />
+
+
 </menu>
