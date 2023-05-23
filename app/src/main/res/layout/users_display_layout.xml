@@ -34,8 +34,8 @@
 
                 <TextView
                     android:id="@+id/users_profile_name"
-                    android:layout_width="297dp"
-                    android:layout_height="match_parent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:gravity="start"
                     android:text="الأسم :"
                     android:textSize="15dp"
