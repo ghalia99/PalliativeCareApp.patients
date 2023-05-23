@@ -40,12 +40,12 @@ public class Profile extends Fragment {
     private static final int PICK_IMAGE_REQUEST_CODE = 1;
     private ImageView profileImage;
     private TextView profileFirstName;
-    private TextView profileMiddleName;
-    private TextView profileFamilyName;
     private TextView profileEmail;
     private Button editProfileButton;
     private AlertDialog alertDialog; // Declare the variable here
     private Uri selectedImageUri;
+
+
 
     // ...
 
@@ -63,7 +63,9 @@ public class Profile extends Fragment {
         profileEmail = view.findViewById(R.id.profileEmail);
         editProfileButton = view.findViewById(R.id.editProfileButton);
 
-        // Set click listener for edit profile button
+
+
+
         editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -77,11 +79,10 @@ public class Profile extends Fragment {
         return view;
     }
 
+
     private void loadUserData() {
-        // Get the current user ID
         String userId = mAuth.getCurrentUser().getUid();
 
-        // Get the user data from the database
         mDatabase.child("users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -103,6 +104,8 @@ public class Profile extends Fragment {
                             .load(profilePhotoUrl)
                             .placeholder(R.drawable.profile_image)
                             .into(profileImage);
+
+
                 }
             }
 

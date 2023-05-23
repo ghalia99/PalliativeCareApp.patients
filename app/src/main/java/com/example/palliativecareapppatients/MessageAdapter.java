@@ -75,7 +75,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             if(fromuserid.equals(messagesenderid))
             {
                 holder.sendermessagetext.setVisibility(View.VISIBLE);
-                holder.sendermessagetext.setBackgroundResource(R.drawable.sender_message_layout);
+                holder.sendermessagetext.setBackgroundResource(R.drawable.sent_message_background);
                 holder.sendermessagetext.setText(messages.getMessage()+"\n \n"+messages.getTime()+" - "+messages.getDate());
             }
             else

@@ -5,6 +5,7 @@
       <map>
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/drawable-anydpi/ic_profile.xml" value="0.1965" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/drawable-xhdpi/buttons.xml" value="0.1965" />
+        <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/drawable-xhdpi/receiver_message_layout.xml" value="0.1965" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/drawable-xhdpi/sender_message_layout.xml" value="0.2105" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/drawable/button_background.xml" value="0.1195" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/drawable/ic_add.xml" value="0.137" />
@@ -20,7 +21,7 @@
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_image_view.xml" value="0.1" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_login.xml" value="0.25" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_main.xml" value="0.21" />
-        <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_main2.xml" value="0.33" />
+        <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_main2.xml" value="0.3076923076923077" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_notification.xml" value="0.19927536231884058" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_phone_login.xml" value="0.18854166666666666" />
         <entry key="..\:/Users/HP/AndroidStudioProjects/PalliativeCareApppatients/app/src/main/res/layout/activity_profile.xml" value="0.2006340579710145" />

@@ -45,8 +45,6 @@ public class DoctorProfile extends Fragment {
     private static final int PICK_IMAGE_REQUEST_CODE = 1;
     private ImageView profileImage;
     private TextView profileFirstName;
-    private TextView profileMiddleName;
-    private TextView profileFamilyName;
     private TextView profileEmail;
     private Button editProfileButton;
     private AlertDialog alertDialog; // Declare the variable here
@@ -54,6 +52,7 @@ public class DoctorProfile extends Fragment {
     private RecyclerView recyclerView;
     private PostListAdapter postsAdapter;
     private List<Post> postList;
+
 
     // ...
 
@@ -76,9 +75,38 @@ public class DoctorProfile extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         postList = new ArrayList<>();
-        postsAdapter = new PostListAdapter(postList,getActivity());
+        postsAdapter = new PostListAdapter(postList, getActivity());
         recyclerView.setAdapter(postsAdapter);
+
         // Set click listener for edit profile button
+        String userId = mAuth.getCurrentUser().getUid();
+        Log.d("postList", " userId " + userId);
+
+        mDatabase.child("posts").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                postList.clear(); // Clear the previous posts
+
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    Log.d("postList", "Post added: " + postSnapshot.getKey());
+
+                    Post post = postSnapshot.getValue(Post.class);
+                    if (post != null) {
+                        postList.add(post);
+                        Log.d("postList", "Post added: " + post.getTitle());
+                    }
+                }
+
+                postsAdapter.notifyDataSetChanged(); // Notify the adapter about the data change
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Handle database error
+                Log.e("TAG", "Failed to load user posts.", databaseError.toException());
+            }
+        });
+
         editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,11 +120,10 @@ public class DoctorProfile extends Fragment {
         return view;
     }
 
+
     private void loadUserData() {
-        // Get the current user ID
         String userId = mAuth.getCurrentUser().getUid();
 
-        // Get the user data from the database
         mDatabase.child("users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -118,15 +145,8 @@ public class DoctorProfile extends Fragment {
                             .load(profilePhotoUrl)
                             .placeholder(R.drawable.profile_image)
                             .into(profileImage);
-                    Post post = dataSnapshot.getValue(Post.class);
-                    if (post != null) {
-                        if (dataSnapshot.child(userId).getValue(String.class)!=null) {
-                            postList.add(post);
-                            Log.d("postList", "Post added: " + post.getTitle());
-                        }
-                    }
 
-                    postsAdapter.notifyDataSetChanged();
+
                 }
             }
 

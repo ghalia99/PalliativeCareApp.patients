@@ -24,7 +24,7 @@
             android:elevation="4dp"
             android:maxWidth="240dp"
             android:padding="8dp"
-            android:textColor="@android:color/white"
+            android:textColor="@color/black"
             android:textSize="16sp" />
 
 

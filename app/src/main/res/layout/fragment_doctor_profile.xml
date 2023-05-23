@@ -1,24 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
-
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:id="@+id/linear"
-
         android:layout_width="match_parent"
-        android:layout_height="154dp"
-        android:layout_above="@+id/recyclerView"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="0dp"
-        android:layout_marginBottom="-3dp">
-
+       >
 
         <com.mikhaellopez.circularimageview.CircularImageView
-
             android:id="@+id/profileImage"
             android:layout_width="150dp"
             android:layout_height="150dp"
@@ -27,17 +21,14 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <TextView
-
                 android:id="@+id/profileFirstName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20sp" />
-
 
             <TextView
                 android:id="@+id/profileEmail"
@@ -47,7 +38,7 @@
 
             <Button
                 android:id="@+id/editProfileButton"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="تعديل"
                 app:backgroundTint="@color/colorAccent" />
@@ -55,14 +46,26 @@
 
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="572dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/linear"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginTop="6dp"
-        android:layout_marginBottom="0dp" />
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="13dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="0dp"
+        android:orientation="vertical">
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="0dp" />
+    </LinearLayout>
 
 </RelativeLayout>

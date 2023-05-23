@@ -28,16 +28,15 @@ public class ChatActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private ViewPager myviewPager;
-    private TabLayout mytabLayout;
     private TabsAccessorAdapter mytabsAccessorAdapter;
     private FirebaseAuth firebaseAuth;
     private DatabaseReference databaseReference;
     private String currentUserId;
-
+    private TabLayout mytabLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_chat);
         firebaseAuth=FirebaseAuth.getInstance();
         databaseReference= FirebaseDatabase.getInstance().getReference();
 

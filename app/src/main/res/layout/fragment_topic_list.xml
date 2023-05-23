@@ -16,20 +16,5 @@
 
         <!-- زر الإضافة -->
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab"
-            android:layout_width="71dp"
-            android:layout_height="472dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_margin="16dp"
-            android:layout_marginBottom="24dp"
-            app:srcCompat="@drawable/ic_add"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintVertical_bias="0.982" />
-
 
 </RelativeLayout>

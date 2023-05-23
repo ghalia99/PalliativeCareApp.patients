@@ -26,21 +26,19 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
+    private BottomNavigationView bottomNavigationView;
     FirebaseAuth firebaseAuth;
     FirebaseUser currentUser;
     private DatabaseReference databaseReference;
-    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        databaseReference= FirebaseDatabase.getInstance().getReference();
-
+        setContentView(R.layout.activity_main2);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
-
+        databaseReference= FirebaseDatabase.getInstance().getReference();
         // Set the initial fragment
-        TopicList topicListFragment = new TopicList();
+        DoctorTopicList topicListFragment = new DoctorTopicList();
         setFragment(topicListFragment);
 
         // Set the listeners for the bottom navigation bar
@@ -49,15 +47,15 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 Fragment fragment;
                 switch (item.getItemId()) {
-                    case R.id.navigation_topic:
+                    case R.id.navigation_Doctor_topic:
                         fragment = new TopicList();
                         setFragment(fragment);
                         return true;
-                    case R.id.navigation_profile:
-                        fragment = new Profile();
+                    case R.id.navigation_home:
+                        fragment = new UserHome();
                         setFragment(fragment);
                         return true;
-                    case R.id.navigation_settings:
+                    case R.id.navigation_profile:
                         fragment = new Profile();
                         setFragment(fragment);
                         return true;
@@ -92,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         hashMap.put("date", savecurrentDate);
         hashMap.put("state", state);
 
-        String currentUserId = firebaseAuth.getCurrentUser().getUid();
+        String    currentUserId = firebaseAuth.getCurrentUser().getUid();
         databaseReference.child("users").child(currentUserId).child("userState").updateChildren(hashMap);
 
     }
@@ -117,7 +115,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
     }
+
     private void setFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
