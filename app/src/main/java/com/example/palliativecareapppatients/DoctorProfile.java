@@ -52,7 +52,7 @@ public class DoctorProfile extends Fragment {
     private RecyclerView recyclerView;
     private PostListAdapter postsAdapter;
     private List<Post> postList;
-
+    private String userId="";
 
     // ...
 
@@ -60,7 +60,6 @@ public class DoctorProfile extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_doctor_profile, container, false);
 
-        // Initialize Firebase
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
 
@@ -70,39 +69,41 @@ public class DoctorProfile extends Fragment {
         profileEmail = view.findViewById(R.id.profileEmail);
         editProfileButton = view.findViewById(R.id.editProfileButton);
         recyclerView = view.findViewById(R.id.recyclerView);
-
+        userId = mAuth.getCurrentUser().getUid();
+        Log.d("postList", "userId " + userId);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         postList = new ArrayList<>();
         postsAdapter = new PostListAdapter(postList, getActivity());
         recyclerView.setAdapter(postsAdapter);
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        // Set click listener for edit profile button
-        String userId = mAuth.getCurrentUser().getUid();
-        Log.d("postList", " userId " + userId);
-
-        mDatabase.child("posts").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+        mDatabase.child("posts").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                postList.clear(); // Clear the previous posts
+                Log.d("user", "userId " + userId);
+
+                postList.clear();
 
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    Log.d("postList", "Post added: " + postSnapshot.getKey());
+               //     postSnapshot.child("userId");
+                    Log.d("postList", "Post added: " + postSnapshot.getValue());
 
+                    Log.d("postList", "Post added: " + postSnapshot.getKey());
+                    Log.d("postList", "Post added: " +postSnapshot.child("userId").equals(userId));
                     Post post = postSnapshot.getValue(Post.class);
-                    if (post != null) {
+                    if (post != null && post.getUserId().equals(userId)) {
                         postList.add(post);
                         Log.d("postList", "Post added: " + post.getTitle());
                     }
                 }
 
-                postsAdapter.notifyDataSetChanged(); // Notify the adapter about the data change
+                postsAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                // Handle database error
                 Log.e("TAG", "Failed to load user posts.", databaseError.toException());
             }
         });
