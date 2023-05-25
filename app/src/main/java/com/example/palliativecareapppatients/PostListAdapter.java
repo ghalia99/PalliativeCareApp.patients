@@ -14,7 +14,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
@@ -24,6 +23,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -35,12 +36,12 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
 public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     // Constants for view types
+    String authorName="";
     private static final int VIEW_TYPE_TEXT = 1;
     private static final int VIEW_TYPE_PHOTO = 2;
     private static final int VIEW_TYPE_FILE = 3;
@@ -306,6 +307,7 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private TextView timestampTextView;
         private Button comment;
 
+
         public VideoViewHolder(@NonNull View itemView) {
             super(itemView);
             videoView = itemView.findViewById(R.id.post_video);
@@ -392,7 +394,6 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         List<Comment> comments = new ArrayList<>();
         CommentAdapter commentAdapter = new CommentAdapter(comments);
         commentsRecyclerView.setAdapter(commentAdapter);
-        dialogLayout.addView(commentsRecyclerView);
 
         // إضافة واجهة المستخدم لمربع الحوار
         builder.setView(dialogLayout);
@@ -401,75 +402,73 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                FirebaseAuth auth = FirebaseAuth.getInstance();
+                String userId = auth.getCurrentUser().getUid();
+                String content = commentEditText.getText().toString();
 
-                FirebaseAuth user = FirebaseAuth.getInstance();
-                String userId = user.getCurrentUser().getUid();
-
-                DatabaseReference userRef = databaseReference.child("users").child(userId);
+                DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users").child(userId);
                 userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists()) {
                             String firstName = dataSnapshot.child("firstName").getValue(String.class);
                             String familyName = dataSnapshot.child("familyName").getValue(String.class);
-                            AuthorName = firstName + " " + familyName;
-
+                            String authorName = firstName + " " + familyName;
+                            Log.d("name",authorName);
+                            Comment comment = new Comment(userId,authorName,content);
+                            databaseReference.child("posts").child(post.getPostId()).child("comment").push().setValue(comment).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    Log.d("comment","Comment Add Successful");
+                                }
+                            });
                         }
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Log.d("اسم الكاتب", "Failed to get user name: " + databaseError.getMessage());
-                    }
-                });
-                String commentText = commentEditText.getText().toString();
-                HashMap<String, Object> cMap = new HashMap<>();
-                cMap.put("userId",userId);
-                cMap.put("AuthorName", AuthorName);
-                cMap.put("commentText", commentText);
-
-                userRef.child("post").child("comment").setValue(cMap).addOnCompleteListener(task -> {
-
-                    if (task.isSuccessful()) {
-                        Toast.makeText(context, "comment added successfully", Toast.LENGTH_SHORT).show();
-
-                    } else {
-                        Toast.makeText(context, "comment upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-                userRef = databaseReference.child("posts").child(post.getUserId()).child("comment");
-                userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            Comment comment= dataSnapshot.getValue(Comment.class);
-                            comments.add(comment);
-
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Log.d("comment", "Failed : " + databaseError.getMessage());
+                        Log.d("اسم الكاتب", "فشل في الحصول على اسم المستخدم: " + databaseError.getMessage());
                     }
                 });
 
-                Log.d("comment", " "+ comments.isEmpty());
+                Log.d("name",authorName);
 
-                commentAdapter.notifyDataSetChanged();
-                commentEditText.setText("");
+
             }
-
-
 
         });
 
-        builder.setNegativeButton("إلغاء", new DialogInterface.OnClickListener() {
+        databaseReference.child("posts").child(post.getPostId()).child("comment").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    comments.clear(); // قم بمسح القائمة قبل إضافة التعليقات الجديدة
+                    for (DataSnapshot commentSnapshot : snapshot.getChildren()) {
+                        Comment comment = commentSnapshot.getValue(Comment.class);
+                        comments.add(comment);
+                    }
+                    commentEditText.setText("");
+                    commentAdapter.notifyDataSetChanged(); // قم بتحديث RecyclerView
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // معالجة الخطأ
+            }
+        });
+
+
+        builder.setNegativeButton("خروج", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
             }
         });
+
+        dialogLayout.removeView(commentsRecyclerView); // إزالة `commentsRecyclerView` من `dialogLayout`
+        dialogLayout.addView(commentsRecyclerView); // إضافة `commentsRecyclerView` بعد إزالته
 
         builder.create().show();
     }

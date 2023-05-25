@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -45,10 +46,11 @@ public class AddPostActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_PICK_FILE = 103;
 
     private EditText etTitle, etDescription;
-    private ImageView ivPostImage, ivPostVideo;
+    private ImageView ivPostImage;
     private Button btnAddImage, btnAddVideo, btnAddFile, btnAddPost;
     private Spinner dropdownList;
     private Uri postImageUri, postVideoUri, postFileUri;
+    private VideoView ivPostVideo;
     private StorageReference storageRef;
     private DatabaseReference databaseRef;
     private FirebaseAuth user;
@@ -175,7 +177,7 @@ public class AddPostActivity extends AppCompatActivity {
                 postImageUri = uri;
                 ivPostImage.setVisibility(View.VISIBLE);
             } else if (requestCode == REQUEST_CODE_PICK_VIDEO) {
-                ivPostVideo.setImageURI(uri);
+                ivPostVideo.setVideoURI(uri);
                 postVideoUri = uri;
                 ivPostVideo.setVisibility(View.VISIBLE);
             } else if (requestCode == REQUEST_CODE_PICK_FILE) {

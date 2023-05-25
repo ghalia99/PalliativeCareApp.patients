@@ -20,7 +20,6 @@ public class Post {
         // Default constructor required for calls to DataSnapshot.getValue(Post.class)
     }
 
-
     public Post(String title, String description, String userId, String topicId) {
         this.title = title;
         this.description = description;
@@ -29,7 +28,19 @@ public class Post {
         this.topicId = topicId;
 
 
+
     }
+    public Post(String title, String description, String userId, String topicId,List<Comment> comments) {
+        this.title = title;
+        this.description = description;
+        this.userId = userId;
+        this.timestamp = System.currentTimeMillis();
+        this.topicId = topicId;
+        this.comments=comments;
+
+
+    }
+
     public void setComments(List<Comment>  comments) {
         this.comments = comments;
     }

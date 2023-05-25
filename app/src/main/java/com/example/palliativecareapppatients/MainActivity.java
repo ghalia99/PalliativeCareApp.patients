@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         databaseReference= FirebaseDatabase.getInstance().getReference();
         // Set the initial fragment
-        DoctorTopicList topicListFragment = new DoctorTopicList();
+      TopicList topicListFragment = new TopicList();
         setFragment(topicListFragment);
 
         // Set the listeners for the bottom navigation bar

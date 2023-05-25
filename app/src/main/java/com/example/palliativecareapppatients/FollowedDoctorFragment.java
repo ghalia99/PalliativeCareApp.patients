@@ -87,7 +87,7 @@ public class FollowedDoctorFragment extends Fragment {
                     Log.d("postSnapshot", "Post snapshot: " + postSnapshot);
                     Post post = postSnapshot.getValue(Post.class);
                     if (post != null) {
-                        if (userContacts.contains(postSnapshot.child("userId").getValue(String.class))) {
+                        if (userContacts.contains(post.getUserId())) {
                             postList.add(post);
                             Log.d("postList", "Post added: " + post.getTitle());
                         }
@@ -103,4 +103,5 @@ public class FollowedDoctorFragment extends Fragment {
             }
         });
     }
+
 }

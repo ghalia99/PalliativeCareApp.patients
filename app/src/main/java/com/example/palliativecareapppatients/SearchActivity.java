@@ -1,12 +1,13 @@
 package com.example.palliativecareapppatients;
-
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,6 +31,10 @@ public class SearchActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private EditText searchEditText;
     private ListAdapter listAdapter;
+
+    private DataSnapshot postsSnapshot;
+    private DataSnapshot topicsSnapshot;
+    private DataSnapshot usersSnapshot;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,13 +60,18 @@ public class SearchActivity extends AppCompatActivity {
         database.getReference("posts").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                // Store the dataSnapshot for posts
+                postsSnapshot = dataSnapshot;
+
                 // Clear existing data
                 posts.clear();
 
-                // Iterate through the data snapshot and add posts to the list
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    String post = snapshot.child("title").getValue(String.class);
-                    posts.add(post);
+                    String title = snapshot.child("title").getValue(String.class);
+                    String description = snapshot.child("description").getValue(String.class);
+
+                    posts.add(title);
+                    posts.add(description);
                 }
 
                 // Notify the adapter of the data change
@@ -77,6 +87,9 @@ public class SearchActivity extends AppCompatActivity {
         database.getReference("topics").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                // Store the dataSnapshot for topics
+                topicsSnapshot = dataSnapshot;
+
                 // Clear existing data
                 topics.clear();
 
@@ -99,12 +112,17 @@ public class SearchActivity extends AppCompatActivity {
         database.getReference("users").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                // Store the dataSnapshot for users
+                usersSnapshot = dataSnapshot;
+
                 // Clear existing data
                 users.clear();
 
                 // Iterate through the data snapshot and add users to the list
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    String user = snapshot.child("firstName").getValue(String.class)+" "+snapshot.child("middleName").getValue(String.class)+" "+snapshot.child("familyName").getValue(String.class);
+                    String user = snapshot.child("firstName").getValue(String.class) + " " +
+                            snapshot.child("middleName").getValue(String.class) + " " +
+                            snapshot.child("familyName").getValue(String.class);
                     users.add(user);
                 }
 
@@ -125,17 +143,17 @@ public class SearchActivity extends AppCompatActivity {
 
         // Perform search based on query
         for (String post : posts) {
-            if (post.toLowerCase().contains(query)) {
+            if (query != null && post != null && post.toLowerCase().contains(query)) {
                 searchResults.add(post);
             }
         }
         for (String topic : topics) {
-            if (topic.toLowerCase().contains(query)) {
+            if (query != null && topic != null && topic.toLowerCase().contains(query)) {
                 searchResults.add(topic);
             }
         }
         for (String user : users) {
-            if (user.toLowerCase().contains(query)) {
+            if (query != null && user != null && user.toLowerCase().contains(query)) {
                 searchResults.add(user);
             }
         }
@@ -170,7 +188,35 @@ public class SearchActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     // Navigate to detail page with the selected item
                     Intent intent = new Intent(SearchActivity.this, DetailActivity.class);
-                    intent.putExtra("item", item);
+                    //int index = posts.indexOf(item);
+                    if (posts.contains(item)) {
+
+                        for (DataSnapshot snapshot : postsSnapshot.getChildren()) {
+                            String title = snapshot.child("title").getValue(String.class);
+                            if (item.equalsIgnoreCase(title)) {
+                                String postId = snapshot.getKey(); // الحصول على معرف البوست
+                                intent.putExtra("postId", postId);
+                                Toast.makeText(SearchActivity.this, "postId " + postId, Toast.LENGTH_SHORT).show();
+                                break;
+                            }
+                        }
+
+
+                    } else if (topics.contains(item)) {
+                        DataSnapshot topicSnapshot = topicsSnapshot.child(item);
+                        String topicId = topicSnapshot.getKey();
+                        intent.putExtra("topicId", topicId);
+                        Log.d("topicId", topicId);
+                        Toast.makeText(SearchActivity.this, "topicId " + topicId, Toast.LENGTH_SHORT).show();
+                    } else if (users.contains(item)) {
+                        DataSnapshot userSnapshot = usersSnapshot.child(item);
+                        String userId = userSnapshot.getKey();
+                        intent.putExtra("userId", userId);
+                        Log.d("userId", userId);
+                        Toast.makeText(SearchActivity.this, "userId" + userId, Toast.LENGTH_SHORT).show();
+                    }
+
+
                     startActivity(intent);
                 }
             });
