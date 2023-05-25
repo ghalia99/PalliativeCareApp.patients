@@ -1,7 +1,7 @@
 package com.example.palliativecareapppatients;
+
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -193,33 +193,49 @@ public class SearchActivity extends AppCompatActivity {
 
                         for (DataSnapshot snapshot : postsSnapshot.getChildren()) {
                             String title = snapshot.child("title").getValue(String.class);
+                            String d =snapshot.child("description").getValue(String.class);
                             if (item.equalsIgnoreCase(title)) {
                                 String postId = snapshot.getKey(); // الحصول على معرف البوست
                                 intent.putExtra("postId", postId);
-                                Toast.makeText(SearchActivity.this, "postId " + postId, Toast.LENGTH_SHORT).show();
-                                break;
+
+                            } else if (item.equalsIgnoreCase(d)) {
+                                String postId = snapshot.getKey(); // الحصول على معرف البوست
+                                intent.putExtra("postId", postId);
+
                             }
                         }
 
 
                     } else if (topics.contains(item)) {
-                        DataSnapshot topicSnapshot = topicsSnapshot.child(item);
-                        String topicId = topicSnapshot.getKey();
-                        intent.putExtra("topicId", topicId);
-                        Log.d("topicId", topicId);
-                        Toast.makeText(SearchActivity.this, "topicId " + topicId, Toast.LENGTH_SHORT).show();
+                        for (DataSnapshot snapshot : topicsSnapshot.getChildren()) {
+                            String title = snapshot.child("title").getValue(String.class);
+                            if (item.equalsIgnoreCase(title)) {
+                                String topicId = snapshot.getKey(); // الحصول على معرف البوست
+                                intent.putExtra("topicId", topicId);
+                                Toast.makeText(SearchActivity.this,topicId ,Toast.LENGTH_SHORT).show();
+
+                            }
+                        }
                     } else if (users.contains(item)) {
-                        DataSnapshot userSnapshot = usersSnapshot.child(item);
-                        String userId = userSnapshot.getKey();
-                        intent.putExtra("userId", userId);
-                        Log.d("userId", userId);
-                        Toast.makeText(SearchActivity.this, "userId" + userId, Toast.LENGTH_SHORT).show();
+                        String[] name=     item.split(" ");
+                        for (DataSnapshot snapshot : usersSnapshot.getChildren()) {
+                             String user1 = snapshot.child("firstName").getValue(String.class);
+                             String user2=snapshot.child("middleName").getValue(String.class);
+                             String user3=snapshot.child("familyName").getValue(String.class);
+
+                            if (name[0].equalsIgnoreCase(user1) &&name[1].equalsIgnoreCase(user2) &&name[2].equalsIgnoreCase(user3) ) {
+                                String userId = snapshot.getKey(); // الحصول على معرف البوست
+                                intent.putExtra("userId", userId);
+
+                            }
+                        }
                     }
 
-
                     startActivity(intent);
+
                 }
             });
+
         }
 
         @Override

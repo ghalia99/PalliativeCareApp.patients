@@ -12,7 +12,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
@@ -24,6 +23,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -94,7 +95,6 @@ public class DetailActivity extends AppCompatActivity {
                                                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE))
                                         .into(postPhoto);
                                 postPhoto.setVisibility(View.VISIBLE);
-                                Toast.makeText(DetailActivity.this, "post.getImageUrl() " + post.getImageUrl(), Toast.LENGTH_SHORT).show();
 
                             }
                             if (post.getVideoUrl() != null && !post.getVideoUrl().isEmpty()) {
@@ -258,8 +258,98 @@ public class DetailActivity extends AppCompatActivity {
         } else if (intent.hasExtra("topicId")) {
 
             String topicId = intent.getStringExtra("topicId");
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+            String userId = auth.getCurrentUser().getUid();
+            reference = FirebaseDatabase.getInstance().getReference();
+            reference.child("topics").child(topicId).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        Topic topic = snapshot.getValue(Topic.class);
+                        userProfileName.setVisibility(View.VISIBLE);
+                        userProfileName.setText(topic.getTitle());
+                        userStatus.setVisibility(View.VISIBLE);
+                        userStatus.setText(topic.getDescription());
+                        commentButton.setVisibility(View.VISIBLE);
+                        commentButton.setText("");
+                        commentButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
 
-        } else if (intent.hasExtra("userId")) {
+                                DatabaseReference followingRef =  reference.child("users").child(userId).child("followingTopic");
+                                followingRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot followingSnapshot) {
+                                        for (DataSnapshot topicSnapshot : followingSnapshot.getChildren()) {
+
+                                            Boolean isFollowed = topicSnapshot.getValue(Boolean.class);
+                                            if (isFollowed != null) {
+                                                String topicId = topicSnapshot.getKey();
+                                                Topic topic = new Topic();
+                                                topic.setId(topicId);
+                                                topic.setIs_followed(isFollowed);
+
+                                                // Add the topic object to your list or perform any necessary operations
+                                            }
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                                        Log.d("DoctorTopicList", databaseError.getMessage());
+                                    }
+                                });
+
+                                boolean isFollowed = topic.getIs_followed();
+                                topic.setIs_followed(!isFollowed);
+
+                                if (!isFollowed) {
+                                    // Add the topic ID to the user's followingTopic list
+                                    followingRef.child(topicId).setValue(true)
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                   commentButton.setText("الغاء المتابعة");
+                                                    Log.d("DoctorTopicList", "Topic added to followingTopic");
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    // Update failed
+                                                    Log.d("DoctorTopicList", "Failed to add topic to followingTopic: " + e.getMessage());
+                                                }
+                                            });
+                                } else {
+                                    // Remove the topic ID from the user's followingTopic list
+                                    followingRef.child(topicId).removeValue()
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    commentButton.setText("متابعة");
+                                                    Log.d("DoctorTopicList", "Topic removed from followingTopic");
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    // Update failed
+                                                    Log.d("DoctorTopicList", "Failed to remove topic from followingTopic: " + e.getMessage());
+                                                }
+                                            });
+                                }
+                            }
+                        });
+                    }
+                }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+                }
+
+         else if (intent.hasExtra("userId")) {
 
             String userId = intent.getStringExtra("userId");
 
