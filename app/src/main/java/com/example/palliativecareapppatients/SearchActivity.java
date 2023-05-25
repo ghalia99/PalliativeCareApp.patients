@@ -1,14 +1,194 @@
 package com.example.palliativecareapppatients;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SearchActivity extends AppCompatActivity {
+
+    private List<String> posts;
+    private List<String> topics;
+    private List<String> users;
+
+    private RecyclerView recyclerView;
+    private EditText searchEditText;
+    private ListAdapter listAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+
+        // Initialize data lists
+        posts = new ArrayList<>();
+        topics = new ArrayList<>();
+        users = new ArrayList<>();
+
+        // Set up RecyclerView
+        recyclerView = findViewById(R.id.searchRecyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        listAdapter = new ListAdapter();
+        recyclerView.setAdapter(listAdapter);
+
+        // Set up search functionality
+        searchEditText = findViewById(R.id.searchEditText);
+
+        // Get data from Realtime Database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        database.getReference("posts").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Clear existing data
+                posts.clear();
+
+                // Iterate through the data snapshot and add posts to the list
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String post = snapshot.child("title").getValue(String.class);
+                    posts.add(post);
+                }
+
+                // Notify the adapter of the data change
+                listAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Handle any errors
+            }
+        });
+
+        database.getReference("topics").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Clear existing data
+                topics.clear();
+
+                // Iterate through the data snapshot and add topics to the list
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String topic = snapshot.child("title").getValue(String.class);
+                    topics.add(topic);
+                }
+
+                // Notify the adapter of the data change
+                listAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Handle any errors
+            }
+        });
+
+        database.getReference("users").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Clear existing data
+                users.clear();
+
+                // Iterate through the data snapshot and add users to the list
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String user = snapshot.child("firstName").getValue(String.class)+" "+snapshot.child("middleName").getValue(String.class)+" "+snapshot.child("familyName").getValue(String.class);
+                    users.add(user);
+                }
+
+                // Notify the adapter of the data change
+                listAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Handle any errors
+            }
+        });
+    }
+
+    public void search(View view) {
+        String query = searchEditText.getText().toString().toLowerCase();
+        List<String> searchResults = new ArrayList<>();
+
+        // Perform search based on query
+        for (String post : posts) {
+            if (post.toLowerCase().contains(query)) {
+                searchResults.add(post);
+            }
+        }
+        for (String topic : topics) {
+            if (topic.toLowerCase().contains(query)) {
+                searchResults.add(topic);
+            }
+        }
+        for (String user : users) {
+            if (user.toLowerCase().contains(query)) {
+                searchResults.add(user);
+            }
+        }
+
+        // Update RecyclerView with search results
+        listAdapter.setData(searchResults);
+        listAdapter.notifyDataSetChanged();
+    }
+
+    private class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
+
+        private List<String> data;
+
+        public void setData(List<String> data) {
+            this.data = data;
+        }
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_layout, parent, false);
+            return new ViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            final String item = data.get(position);
+            holder.titleTextView.setText(item);
+
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Navigate to detail page with the selected item
+                    Intent intent = new Intent(SearchActivity.this, DetailActivity.class);
+                    intent.putExtra("item", item);
+                    startActivity(intent);
+                }
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            return data != null ? data.size() : 0;
+        }
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
+
+            TextView titleTextView;
+
+            public ViewHolder(@NonNull View itemView) {
+                super(itemView);
+                titleTextView = itemView.findViewById(R.id.titleTextView);
+            }
+        }
     }
 }

@@ -1,23 +1,31 @@
 package com.example.palliativecareapppatients;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -25,7 +33,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -40,6 +50,7 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private String userName="";
     private List<Post> postList;
     private Context context;
+    private String AuthorName="";
 
     public PostListAdapter(List<Post> postList, Context context) {
         databaseReference = FirebaseDatabase.getInstance().getReference();
@@ -132,13 +143,16 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private TextView descriptionTextView;
         private TextView authorTextView;
         private TextView timestampTextView;
-
+        private Button comment;
+        private  DatabaseReference userRef;
         public TextViewHolder(@NonNull View itemView) {
             super(itemView);
             titleTextView = itemView.findViewById(R.id.post_title);
             descriptionTextView = itemView.findViewById(R.id.post_description);
             authorTextView = itemView.findViewById(R.id.post_author);
             timestampTextView = itemView.findViewById(R.id.post_timestamp);
+            comment=itemView.findViewById(R.id.button);
+
         }
 
         public void bind(Post post) {
@@ -165,6 +179,12 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             });
 
             timestampTextView.setText(formatTimestamp(post.getTimestamp()));
+            comment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showCommentDialog(post);
+                }
+            });
         }
 
     }
@@ -175,6 +195,7 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private TextView descriptionTextView;
         private TextView authorTextView;
         private TextView timestampTextView;
+        private Button comment;
 
         public PhotoViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -183,6 +204,8 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             descriptionTextView = itemView.findViewById(R.id.post_description);
             authorTextView = itemView.findViewById(R.id.post_author);
             timestampTextView = itemView.findViewById(R.id.post_timestamp);
+            comment=itemView.findViewById(R.id.button);
+
         }
 
         public void bind(Post post) {
@@ -215,6 +238,12 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     .apply(new RequestOptions()
                             .diskCacheStrategy(DiskCacheStrategy.RESOURCE))
                     .into(photoImageView);
+            comment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showCommentDialog(post);
+                }
+            });
 
         }
     }
@@ -224,6 +253,7 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private TextView descriptionTextView;
         private TextView authorTextView;
         private TextView timestampTextView;
+        private Button comment;
 
         public FileViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -231,6 +261,8 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             descriptionTextView = itemView.findViewById(R.id.post_description);
             authorTextView = itemView.findViewById(R.id.post_author);
             timestampTextView = itemView.findViewById(R.id.post_timestamp);
+            comment=itemView.findViewById(R.id.button);
+
         }
 
         public void bind(Post post) {
@@ -256,7 +288,12 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             });
 
             timestampTextView.setText(formatTimestamp(post.getTimestamp()));
-
+            comment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showCommentDialog(post);
+                }
+            });
             // Track file post viewed
         }
     }
@@ -267,6 +304,7 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private TextView descriptionTextView;
         private TextView authorTextView;
         private TextView timestampTextView;
+        private Button comment;
 
         public VideoViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -275,6 +313,7 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             descriptionTextView = itemView.findViewById(R.id.post_description);
             authorTextView = itemView.findViewById(R.id.post_author);
             timestampTextView = itemView.findViewById(R.id.post_timestamp);
+            comment=itemView.findViewById(R.id.button);
         }
 
         public void bind(Post post) {
@@ -304,6 +343,12 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             Uri videoUri = Uri.parse(post.getVideoUrl());
             videoView.setVideoURI(videoUri);
             videoView.start();
+            comment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showCommentDialog(post);
+                }
+            });
 
 
         }
@@ -320,6 +365,113 @@ public class PostListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, name);
         bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, contentType);
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+    private void showCommentDialog(final Post post) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("أضف تعليقًا");
+
+        // إنشاء واجهة المستخدم لمربع الحوار
+        LinearLayout dialogLayout = new LinearLayout(context);
+        dialogLayout.setOrientation(LinearLayout.VERTICAL);
+        dialogLayout.setPadding(16, 16, 16, 16);
+
+        // إنشاء EditText لكتابة التعليق
+        final EditText commentEditText = new EditText(context);
+        dialogLayout.addView(commentEditText);
+
+        // إنشاء زر لإضافة التعليق
+        Button addButton = new Button(context);
+        addButton.setText("إضافة تعليق");
+        dialogLayout.addView(addButton);
+
+        // إنشاء RecyclerView لعرض التعليقات
+        RecyclerView commentsRecyclerView = new RecyclerView(context);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(context);
+        commentsRecyclerView.setLayoutManager(layoutManager);
+        List<Comment> comments = new ArrayList<>();
+        CommentAdapter commentAdapter = new CommentAdapter(comments);
+        commentsRecyclerView.setAdapter(commentAdapter);
+        dialogLayout.addView(commentsRecyclerView);
+
+        // إضافة واجهة المستخدم لمربع الحوار
+        builder.setView(dialogLayout);
+
+        // إعداد الزر لإضافة التعليق
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                FirebaseAuth user = FirebaseAuth.getInstance();
+                String userId = user.getCurrentUser().getUid();
+
+                DatabaseReference userRef = databaseReference.child("users").child(userId);
+                userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            String firstName = dataSnapshot.child("firstName").getValue(String.class);
+                            String familyName = dataSnapshot.child("familyName").getValue(String.class);
+                            AuthorName = firstName + " " + familyName;
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        Log.d("اسم الكاتب", "Failed to get user name: " + databaseError.getMessage());
+                    }
+                });
+                String commentText = commentEditText.getText().toString();
+                HashMap<String, Object> cMap = new HashMap<>();
+                cMap.put("userId",userId);
+                cMap.put("AuthorName", AuthorName);
+                cMap.put("commentText", commentText);
+
+                userRef.child("post").child("comment").setValue(cMap).addOnCompleteListener(task -> {
+
+                    if (task.isSuccessful()) {
+                        Toast.makeText(context, "comment added successfully", Toast.LENGTH_SHORT).show();
+
+                    } else {
+                        Toast.makeText(context, "comment upload failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+                userRef = databaseReference.child("posts").child(post.getUserId()).child("comment");
+                userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            Comment comment= dataSnapshot.getValue(Comment.class);
+                            comments.add(comment);
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        Log.d("comment", "Failed : " + databaseError.getMessage());
+                    }
+                });
+
+                Log.d("comment", " "+ comments.isEmpty());
+
+                commentAdapter.notifyDataSetChanged();
+                commentEditText.setText("");
+            }
+
+
+
+        });
+
+        builder.setNegativeButton("إلغاء", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        builder.create().show();
     }
 
 }

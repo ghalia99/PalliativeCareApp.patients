@@ -1,5 +1,9 @@
 package com.example.palliativecareapppatients;
 
+import org.w3c.dom.Comment;
+
+import java.util.List;
+
 public class Post {
     private String postId;
     private String title;
@@ -10,10 +14,12 @@ public class Post {
     private String fileUrl;
     private long timestamp;
     private String topicId;
+    private List<Comment> comments;
 
     public Post() {
         // Default constructor required for calls to DataSnapshot.getValue(Post.class)
     }
+
 
     public Post(String title, String description, String userId, String topicId) {
         this.title = title;
@@ -21,6 +27,14 @@ public class Post {
         this.userId = userId;
         this.timestamp = System.currentTimeMillis();
         this.topicId = topicId;
+
+
+    }
+    public void setComments(List<Comment>  comments) {
+        this.comments = comments;
+    }
+    public List<Comment> getComments() {
+        return comments;
     }
 
     public String getPostId() {

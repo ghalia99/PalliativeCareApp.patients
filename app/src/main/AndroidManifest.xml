@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.palliativecareapppatients">
 
+    <uses-sdk tools:overrideLibrary="com.android.car.ui" />
+
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -19,6 +21,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PalliativeCareApppatients"
         tools:targetApi="31">
+        <activity
+            android:name=".DetailActivity"
+            android:exported="false" />
         <activity
             android:name=".topicsPostsActivity"
             android:exported="false" />
