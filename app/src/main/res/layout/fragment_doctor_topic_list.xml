@@ -9,27 +9,30 @@
     android:padding="16dp">
 
     <!-- RecyclerView لعرض القائمة -->
+
+    <!-- زر الإضافة -->
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/topic_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- زر الإضافة -->
-
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
-        android:layout_width="71dp"
-        android:layout_height="472dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="16dp"
-        android:layout_marginBottom="24dp"
-        app:srcCompat="@drawable/ic_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/topic_list"
+        android:layout_alignBottom="@+id/topic_list"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="307dp"
+        android:layout_marginBottom="17dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintVertical_bias="0.982" />
+        app:layout_constraintVertical_bias="0.982"
+        app:srcCompat="@drawable/ic_add" />
 
 
 </RelativeLayout>

@@ -3,7 +3,7 @@ package com.example.palliativecareapppatients;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,112 +26,60 @@ import com.google.firebase.database.ValueEventListener;
 public class LoginActivity extends AppCompatActivity {
     private EditText emailEt, passwordEt;
     private Button loginBtn, registerBtn;
-    private SharedPreferences mSharedPreferences;
-
     private FirebaseAuth mAuth;
+    private SharedPreferences mSharedPreferences;
+    private boolean isLoggedIn;
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Set the loggedIn value to true
-        SharedPreferences prefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
-        boolean isFirstRun = prefs.getBoolean("isFirstRun", true);
-        if (isFirstRun) {
-            // if this is the first run of the app, set the loggedIn value to false
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putBoolean("loggedIn", false);
-            editor.putBoolean("isFirstRun", false);
-            editor.apply();
+        setContentView(R.layout.activity_login);
 
-        } else {
+        emailEt = findViewById(R.id.email_et);
+        passwordEt = findViewById(R.id.password_et);
+        loginBtn = findViewById(R.id.login_btn);
+        registerBtn = findViewById(R.id.register_btn);
 
-            setContentView(R.layout.activity_login);
+        mAuth = FirebaseAuth.getInstance();
+        mSharedPreferences = getSharedPreferences("myPrefs", MODE_PRIVATE);
+        isLoggedIn = mSharedPreferences.getBoolean("loggedIn", false);
 
+        if (isLoggedIn) {
+            redirectToMainActivity();
+            finish();
+        }
 
-            emailEt = findViewById(R.id.email_et);
-            passwordEt = findViewById(R.id.password_et);
-            loginBtn = findViewById(R.id.login_btn);
-            registerBtn = findViewById(R.id.register_btn);
+        loginBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String email = emailEt.getText().toString().trim();
+                String password = passwordEt.getText().toString().trim();
 
-            mAuth = FirebaseAuth.getInstance();
+                mAuth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if (task.isSuccessful()) {
+                                    SharedPreferences.Editor editor = mSharedPreferences.edit();
+                                    editor.putBoolean("loggedIn", true);
+                                    editor.apply();
 
-            FirebaseUser currentUser = mAuth.getCurrentUser();
-            if (currentUser != null) {
-                String userType = currentUser.getMetadata().getCreationTimestamp() == currentUser.getMetadata().getLastSignInTimestamp()
-                        ? currentUser.getDisplayName()
-                        : currentUser.getMetadata().getCreationTimestamp() + "";
-                if (userType.equals("doctor")) {
-                    Intent intent = new Intent(LoginActivity.this, MainActivity2.class);
-                    startActivity(intent);
-                    finish();
-                } else if (userType.equals("patient")) {
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
+                                    redirectToMainActivity();
+                                    finish();
+                                } else {
+                                    Toast.makeText(LoginActivity.this, "Failed to log in. Please check your credentials and try again.", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
             }
+        });
 
-    loginBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        String email = emailEt.getText().toString().trim();
-                        String password = passwordEt.getText().toString().trim();
-
-                        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
-                            Toast.makeText(getApplicationContext(), "Please fill in all fields", Toast.LENGTH_LONG).show();
-                            return;
-                        }
-
-                        mAuth.signInWithEmailAndPassword(email, password)
-                                .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<AuthResult> task) {
-                                        if (task.isSuccessful()) {
-                                            Toast.makeText(getApplicationContext(), "Login successful", Toast.LENGTH_LONG).show();
-                                            FirebaseUser currentUser = mAuth.getCurrentUser();
-                                            if (currentUser != null) {
-                                                String uid = currentUser.getUid();
-                                                DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users").child(uid);
-                                                userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                                                    @Override
-                                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                                        if (dataSnapshot.exists()) {
-                                                            String userType = dataSnapshot.child("type").getValue(String.class);
-                                                            if (userType != null) {
-                                                                if (userType.equals("doctor")) {
-                                                                    Intent intent = new Intent(LoginActivity.this, MainActivity2.class);
-                                                                    startActivity(intent);
-                                                                } else if (userType.equals("patient")) {
-                                                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                                                    startActivity(intent);
-                                                                }
-                                                                finish();
-                                                            } else {
-                                                                Toast.makeText(getApplicationContext(), "Failed to get user type", Toast.LENGTH_LONG).show();
-                                                            }
-                                                        } else {
-                                                            Toast.makeText(getApplicationContext(), "Failed to get user data", Toast.LENGTH_LONG).show();
-                                                        }
-                                                    }
-
-                                                    @Override
-                                                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                                                        Toast.makeText(getApplicationContext(), "Failed to get user data", Toast.LENGTH_LONG).show();
-                                                    }
-                                                });
-                                            }
-                                        } else {
-                                            Toast.makeText(getApplicationContext(), "Login failed", Toast.LENGTH_LONG).show();
-                                        }
-                                    }
-                                });
-                    }
-                });
-
-
-
-
-            registerBtn.setOnClickListener(new View.OnClickListener() {
+        registerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(LoginActivity.this, RegistrationActivity.class);
@@ -139,5 +87,43 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-}
+    private boolean isDataLoaded = false;
+
+    private void redirectToMainActivity() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users").child(currentUser.getUid());
+            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        String userType = dataSnapshot.child("type").getValue(String.class);
+                        Class<?> targetActivity = userType.equals("doctor") ? MainActivity2.class : MainActivity.class;
+                        Intent intent = new Intent(LoginActivity.this, targetActivity);
+                        startActivity(intent);
+                    }
+                    isDataLoaded = true; // تم تحميل البيانات بنجاح
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.d("LoginActivity", "Failed to retrieve user data: " + databaseError.getMessage());
+                    isDataLoaded = true; // حدث خطأ في تحميل البيانات
+                }
+            });
+        } else {
+            isDataLoaded = true; // لا يوجد مستخدم حالي
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!isDataLoaded) {
+            // تعيين شاشة تحميل أو إجراء آخر هنا حتى يتم تحميل البيانات
+        }
+    }
+
+
+
 }

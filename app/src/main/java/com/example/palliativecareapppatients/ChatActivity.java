@@ -1,6 +1,7 @@
 package com.example.palliativecareapppatients;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -172,11 +173,17 @@ public class ChatActivity extends AppCompatActivity {
         }
         else if(id==R.id.main_logout_menu)
         {
-           updateUserStatus("offline");
+            updateUserStatus("offline");
+            SharedPreferences prefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putBoolean("loggedIn", false);
+            editor.apply();
             firebaseAuth.signOut();
-            sendUserToLoginActivity();
-            Toast.makeText(ChatActivity.this,"User logged out succuessfully...",Toast.LENGTH_SHORT).show();
-        }
+            Intent intent = new Intent(ChatActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+            Toast.makeText(ChatActivity.this, "User logged out successfully...", Toast.LENGTH_SHORT).show();
+            return true; }
 
         return true;
     }

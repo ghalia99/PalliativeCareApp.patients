@@ -33,6 +33,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.mikhaellopez.circularimageview.CircularImageView;
+import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -310,6 +311,8 @@ public class DetailActivity extends AppCompatActivity {
                                                 @Override
                                                 public void onSuccess(Void aVoid) {
                                                    commentButton.setText("الغاء المتابعة");
+                                                    commentButton.setVisibility(View.VISIBLE);
+
                                                     Log.d("DoctorTopicList", "Topic added to followingTopic");
                                                 }
                                             })
@@ -352,12 +355,62 @@ public class DetailActivity extends AppCompatActivity {
          else if (intent.hasExtra("userId")) {
 
             String userId = intent.getStringExtra("userId");
+            reference = FirebaseDatabase.getInstance().getReference();
+            reference.child("users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        User user = snapshot.getValue(User.class);
+                        userProfileName.setVisibility(View.VISIBLE);
+                        userProfileName.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                String visit_user_id=userId;
+                                Intent profileintent=new Intent(DetailActivity.this,ProfileActivity.class);
+                                profileintent.putExtra("visit_user_id",visit_user_id);
+                                startActivity(profileintent);
+                            }
+                        });
+                        userProfileName.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                String visit_user_id=userId;
+                                Intent profileintent=new Intent(DetailActivity.this,ProfileActivity.class);
+                                profileintent.putExtra("visit_user_id",visit_user_id);
+                                startActivity(profileintent);
+                            }
+                        });
+                        userProfileName.setText(user.getFirstName() + " " + user.getMiddleName() + " " + user.getFamilyName());
+                        userStatus.setVisibility(View.VISIBLE);
 
+                        userStatus.setText(snapshot.child("userState").child("state").getValue(String.class));
+                        if (snapshot.child("userState").child("state").getValue(String.class)=="online"){
+                        userOnlineStatus.setVisibility(View.VISIBLE);}
+                        userProfileImage.setVisibility(View.VISIBLE);
+                        Picasso.get().load(snapshot.child("profilePhotoUrl").getValue(String.class)).placeholder(R.drawable.profile_image).into(userProfileImage);
+                        userProfileImage.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                String visit_user_id=userId;
+                                Intent profileintent=new Intent(DetailActivity.this,ProfileActivity.class);
+                                profileintent.putExtra("visit_user_id",visit_user_id);
+                                startActivity(profileintent);
+                            }
+                        });
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
         }
-
     }
-    private String formatTimestamp(long timestamp) {
+                private String formatTimestamp(long timestamp) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault());
         return sdf.format(new Date(timestamp));
-    }
+
+}
 }

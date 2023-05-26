@@ -1,40 +1,69 @@
 package com.example.palliativecareapppatients;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class SplashScreenActivity extends AppCompatActivity {
+    private static final long SPLASH_SCREEN_DELAY = 2000; // تأخير سبلاش سكرين بمدة 2 ثانية
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
 
-        // Check if user is logged in
-        SharedPreferences sharedPreferences = getSharedPreferences("myPrefs", MODE_PRIVATE);
-        boolean isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
-
-        if (isLoggedIn) {
-            // Retrieve user type
-            String userType = sharedPreferences.getString("type", "");
-
-            // Start appropriate activity
-            if (userType.equals("patient")) {
-                Intent intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
-            } else if (userType.equals("doctor")) {
-                Intent intent = new Intent(this, MainActivity2.class);
-                startActivity(intent);
+        mAuth = FirebaseAuth.getInstance();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                redirectToMainActivity();
             }
-        } else {
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
-        }
+        }, SPLASH_SCREEN_DELAY);
+    }
 
-        // Finish the splash screen activity
+    private void redirectToLoginActivity() {
+        Intent intent = new Intent(SplashScreenActivity.this, LoginActivity.class);
+        startActivity(intent);
         finish();
     }
-}
+
+
+    private void redirectToMainActivity() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users").child(currentUser.getUid());
+            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        String userType = dataSnapshot.child("type").getValue(String.class);
+                        Class<?> targetActivity = userType.equals("doctor") ? MainActivity2.class : MainActivity.class;
+                        Intent intent = new Intent(SplashScreenActivity.this, targetActivity);
+                        startActivity(intent);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.d("LoginActivity", "Failed to retrieve user data: " + databaseError.getMessage());
+
+                }
+            });
+        }
+    }
+
+    }
+

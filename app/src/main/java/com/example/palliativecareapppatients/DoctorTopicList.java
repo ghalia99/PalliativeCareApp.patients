@@ -21,15 +21,21 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class DoctorTopicList extends Fragment {
 
@@ -170,7 +176,6 @@ public class DoctorTopicList extends Fragment {
         });
     }
 
-
     private void showAddTopicDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Add Topic");
@@ -203,13 +208,76 @@ public class DoctorTopicList extends Fragment {
 
         builder.show();
     }
-
     private void addTopic(String title, String description) {
         String id = mTopicsRef.push().getKey();
         Topic topic = new Topic(id, title, description, false);
-        mTopicsRef.child(id).setValue(topic);
-        Toast.makeText(getActivity(), "Topic added", Toast.LENGTH_SHORT).show();
+        mTopicsRef.child(id).setValue(topic).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(getActivity(), "Topic added", Toast.LENGTH_SHORT).show();
+                sendNotificationToContacts(topic);
+            }
+        });
     }
+
+    private void sendNotificationToContacts(Topic topic) {
+        DatabaseReference contactsRef = FirebaseDatabase.getInstance().getReference().child("Contacts");
+        contactsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot contactSnapshot : dataSnapshot.getChildren()) {
+                    String contactUserId = contactSnapshot.getKey();
+                    sendNotificationToUser(contactUserId, topic);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.d("DoctorTopicList", "Failed to retrieve contacts: " + databaseError.getMessage());
+            }
+        });
+    }
+
+    private void sendNotificationToUser(String contactUserId, Topic topic) {
+        DatabaseReference deviceTokenRef = FirebaseDatabase.getInstance().getReference().child("Contents").child(contactUserId);
+        deviceTokenRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String deviceToken = dataSnapshot.getValue(String.class);
+                if (deviceToken != null) {
+                    // Use the deviceToken to send the notification using FCM
+                    try {
+                        sendMessageUsingFCM(deviceToken, topic);
+                    } catch (FirebaseException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.d("DoctorTopicList", "Failed to retrieve device token: " + databaseError.getMessage());
+            }
+        });
+    }
+
+    private void sendMessageUsingFCM(String deviceToken, Topic topic) throws FirebaseException {
+        // Create the message payload
+        Map<String, String> data = new HashMap<>();
+        data.put("title", topic.getTitle());
+        data.put("description", topic.getDescription());
+
+        // Create the FCM message
+        RemoteMessage.Builder builder = new RemoteMessage.Builder(deviceToken)
+                .setMessageId(UUID.randomUUID().toString())
+                .setData(data);
+
+        // Send the message using the FirebaseMessaging instance
+
+        FirebaseMessaging.getInstance().send(builder.build());
+        Log.d("DoctorTopicList", "Message sent successfully");
+    }
+
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {

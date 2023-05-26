@@ -93,7 +93,7 @@ public class DoctorProfile extends Fragment {
                     Log.d("postList", "Post added: " + postSnapshot.getKey());
                     Log.d("postList", "Post added: " +postSnapshot.child("userId").equals(userId));
                     Post post = postSnapshot.getValue(Post.class);
-                    if (post != null && post.getUserId().equals(userId)) {
+                    if (postSnapshot.child("userId").getValue() != null && postSnapshot.child("userId").getValue().equals(userId)) {
                         postList.add(post);
                         Log.d("postList", "Post added: " + post.getTitle());
                     }

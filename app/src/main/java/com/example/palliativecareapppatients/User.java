@@ -14,6 +14,26 @@ public class User {
     private String id;
     private Map<String, Boolean> followingTopics;
 
+    public String getProfilePhotoUrl() {
+        return profilePhotoUrl;
+    }
+
+    public void setProfilePhotoUrl(String profilePhotoUrl) {
+        this.profilePhotoUrl = profilePhotoUrl;
+    }
+
+    private String profilePhotoUrl;
+
+    public Map<String, String> getStatus() {
+        return status;
+    }
+
+    public void setStatus(Map<String, String> status) {
+        this.status = status;
+    }
+
+    private Map<String, String> status;
+
     public User() {
         // Empty constructor needed for Firebase
     }
