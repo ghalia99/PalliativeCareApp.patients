@@ -59,7 +59,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String email = emailEt.getText().toString().trim();
                 String password = passwordEt.getText().toString().trim();
-
+if (email !=null && password !=null ){
                 mAuth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override
@@ -76,6 +76,8 @@ public class LoginActivity extends AppCompatActivity {
                                 }
                             }
                         });
+            }else  Toast.makeText(LoginActivity.this, "ادخل البيانات رجاء", Toast.LENGTH_SHORT).show();
+
             }
         });
 
@@ -124,6 +126,9 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-
+    @Override
+    public void onBackPressed() {
+        finishAffinity(); // إغلاق التطبيق بأكمله عند الضغط على زر العودة
+    }
 
 }

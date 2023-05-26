@@ -1,6 +1,7 @@
 package com.example.palliativecareapppatients;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -17,8 +18,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class SplashScreenActivity extends AppCompatActivity {
-    private static final long SPLASH_SCREEN_DELAY = 2000; // تأخير سبلاش سكرين بمدة 2 ثانية
+    private static final long SPLASH_SCREEN_DELAY = 1000; // تأخير سبلاش سكرين بمدة 2 ثانية
     private FirebaseAuth mAuth;
+    private SharedPreferences mSharedPreferences;
+    private boolean isLoggedIn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +35,19 @@ public class SplashScreenActivity extends AppCompatActivity {
                 redirectToMainActivity();
             }
         }, SPLASH_SCREEN_DELAY);
+        mAuth = FirebaseAuth.getInstance();
+        mSharedPreferences = getSharedPreferences("myPrefs", MODE_PRIVATE);
+        isLoggedIn = mSharedPreferences.getBoolean("loggedIn", false);
+
+        if (isLoggedIn) {
+            redirectToMainActivity();
+            finish();
+        }
+        if (!isLoggedIn) {
+            redirectToLoginActivity();
+            finish();
+        }
+
     }
 
     private void redirectToLoginActivity() {

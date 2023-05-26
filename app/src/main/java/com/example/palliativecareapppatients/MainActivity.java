@@ -162,6 +162,8 @@ public class MainActivity extends AppCompatActivity {
             finish();
 
 
+                // إغلاق التطبيق بأكمله عند الضغط على زر العودة
+
             Toast.makeText(MainActivity.this, "User logged out successfully...", Toast.LENGTH_SHORT).show();
             return true;
         }

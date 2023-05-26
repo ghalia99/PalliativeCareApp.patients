@@ -162,6 +162,7 @@ public class MainActivity2 extends AppCompatActivity {
             finish();
             Toast.makeText(MainActivity2.this, "User logged out successfully...", Toast.LENGTH_SHORT).show();
             return true;
+
         }
 
         return super.onOptionsItemSelected(item);
